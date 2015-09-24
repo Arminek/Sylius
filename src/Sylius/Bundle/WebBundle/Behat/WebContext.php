@@ -11,6 +11,7 @@
 
 namespace Sylius\Bundle\WebBundle\Behat;
 
+use Behat\Behat\Tester\Exception\PendingException;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Mink\Element\DocumentElement;
 use Behat\Mink\Element\NodeElement;
@@ -701,6 +702,22 @@ class WebContext extends BaseWebContext implements SnippetAcceptingContext
         $this->fillField('New password', $newPassword);
         $this->fillField('Confirmation', $newPassword);
         $this->pressButton('Save changes');
+    }
+
+    /**
+     * @When I remove :name from cart
+     */
+    public function iRemoveFromCart($name)
+    {
+        $this->clickElementByCss('.btn-danger');
+    }
+
+    /**
+     * @Then I should not see :total near cart widget
+     */
+    public function iShouldNotSeeNearCartWidget($total)
+    {
+        $this->assertSession()->elementNotContains('css', '.masthead > ul > li.first > a > span', $total);
     }
 
     private function assertRoute($route)

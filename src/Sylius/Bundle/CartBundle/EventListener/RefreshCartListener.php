@@ -11,24 +11,45 @@
 
 namespace Sylius\Bundle\CartBundle\EventListener;
 
+use Doctrine\ORM\Event\OnFlushEventArgs;
 use Sylius\Component\Cart\Model\CartInterface;
-use Symfony\Component\EventDispatcher\GenericEvent;
 
 /**
- * Ensure that the cart is refreshed before other listeners.
+ * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
  */
 class RefreshCartListener
 {
-    public function refreshCart(GenericEvent $event)
+    /**
+     * @param OnFlushEventArgs $args
+     */
+    public function onFlush(OnFlushEventArgs $args)
     {
-        $cart = $event->getSubject();
+        $entityManager = $args->getEntityManager();
+        $unitOfWork = $entityManager->getUnitOfWork();
 
-        if (!$cart instanceof CartInterface) {
-            throw new \InvalidArgumentException(
-                'RefreshCartListener requires event subject to be instance of "Sylius\Component\Cart\Model\CartInterface"'
-            );
+        foreach ($unitOfWork->getScheduledEntityUpdates() as $entity) {
+            if ($entity instanceof CartInterface) {
+                $this->clearAdjustmentsOnEmptyCart($entity);
+                $this->refreshCart($entity);
+            }
         }
+    }
 
+    /**
+     * @param CartInterface $cart
+     */
+    private function refreshCart(CartInterface $cart)
+    {
         $cart->calculateTotal();
+    }
+
+    /**
+     * @param CartInterface $cart
+     */
+    private function clearAdjustmentsOnEmptyCart(CartInterface $cart)
+    {
+        if ($cart->isEmpty()) {
+            $cart->clearAdjustments();
+        }
     }
 }

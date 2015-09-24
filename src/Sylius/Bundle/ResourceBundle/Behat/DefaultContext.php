@@ -284,6 +284,35 @@ abstract class DefaultContext extends RawMinkContext implements Context, KernelA
     }
 
     /**
+     * @param string|NodeElement $locator
+     */
+    protected function clickElementByCss($locator)
+    {
+        if ($locator instanceof NodeElement) {
+            $locator->click();
+
+            return;
+        }
+        $this->getElementByCss($locator)->click();
+    }
+
+    /**
+     * @param string $locator
+     *
+     * @throws \InvalidArgumentException
+     *
+     * @return NodeElement|mixed|null
+     */
+    protected function getElementByCss($locator)
+    {
+        $session = $this->getSession();
+        $this->assertSession()->elementExists('css', $locator);
+        $element = $session->getPage()->find('css', $locator);
+
+        return $element;
+    }
+
+    /**
      * Fills in form field with specified id|name|label|value.
      *
      * @param string $field

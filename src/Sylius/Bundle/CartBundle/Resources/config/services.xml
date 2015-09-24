@@ -102,7 +102,7 @@
         </service>
 
         <service id="sylius.listener.cart_refresh" class="%sylius.listener.cart_refresh.class%">
-            <tag name="kernel.event_listener" event="sylius.cart_change" method="refreshCart" priority="255" />
+            <tag name="doctrine.event_listener" event="onFlush" connection="default" />
         </service>
 
         <service id="sylius.cart.purger" class="%sylius.cart.purger.class%">

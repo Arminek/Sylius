@@ -100,3 +100,15 @@ Feature: Checkout shipping
          When I press "Continue"
          Then I should be on the checkout addressing step
           And "We're sorry" should appear on the page
+
+    Scenario: Removing last item in cart after selecting shipping method
+              clear cart total
+        Given I go to the checkout start page
+          And I fill in the shipping address to United States
+          And I press "Continue"
+         When I select the "FedEx" radio button
+          And I press "Continue"
+          And I go to the cart summary page
+          And I remove "PHP top" from cart
+         Then I should be on the cart summary page
+          And I should not see 65.00 near cart widget
