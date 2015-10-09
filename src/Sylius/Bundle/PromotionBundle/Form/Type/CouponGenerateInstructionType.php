@@ -37,6 +37,9 @@ class CouponGenerateInstructionType extends AbstractResourceType
                 'label' => 'sylius.form.coupon_generate_instruction.expires_at',
                 'empty_value' => /** @Ignore */ array('year' => '-', 'month' => '-', 'day' => '-'),
             ))
+            ->add('codeLength', 'integer', array(
+                'label' => 'sylius.form.coupon_generate_instruction.length'
+            ))
         ;
     }
 

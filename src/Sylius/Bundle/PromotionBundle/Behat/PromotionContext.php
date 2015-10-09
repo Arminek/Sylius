@@ -38,8 +38,6 @@ class PromotionContext extends DefaultContext
             $manager->persist($coupon);
         }
 
-        $promotion->setCouponBased(true);
-
         $manager->flush();
     }
 
@@ -123,6 +121,19 @@ class PromotionContext extends DefaultContext
 
             $manager->persist($promotion);
         }
+
+        $manager->flush();
+    }
+
+    /**
+     * @Given :promotionName is coupon based promotion
+     */
+    public function isCouponBasedPromotion($promotionName)
+    {
+        $promotion = $this->findOneByName('promotion', $promotionName);
+        $promotion->setCouponBased(true);
+
+        $manager = $this->getEntityManager();
 
         $manager->flush();
     }

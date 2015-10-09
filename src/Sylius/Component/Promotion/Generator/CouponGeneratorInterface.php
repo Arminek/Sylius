@@ -24,17 +24,17 @@ interface CouponGeneratorInterface
     /**
      * Generate coupons for the promotion based on the instruction.
      *
-     * @param PromotionInterface $promotion
-     * @param Instruction        $instruction
+     * @param PromotionInterface   $promotion
+     * @param InstructionInterface $instruction
      *
-     * @return CouponInterface[] $coupons
+     * @return CouponInterface[]   $coupons
      */
-    public function generate(PromotionInterface $promotion, Instruction $instruction);
+    public function generate(PromotionInterface $promotion, InstructionInterface $instruction);
 
     /**
-     * Generate unique code.
+     * @param int $codeLength
      *
      * @return string
      */
-    public function generateUniqueCode();
+    public function generateUniqueCode($codeLength);
 }

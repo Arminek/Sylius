@@ -11,7 +11,10 @@ Feature: Promotions
             | New Year       | New Year Sale for more than 3 items    | 0           | 0    | 2013-12-31 | 2014-01-03 |
             | Christmas      | Christmas Sale for orders over 100 EUR | 0           | 0    | 2013-12-10 | 2013-12-25 |
             | Press Campaign | Coupon based promotion                 | 0           | 0    |            |            |
+            | Easter         | Coupon based promotion                 | 0           | 0    |            |            |
             | Free orders    | First 3 orders have 100% discount!     | 3           | 0    |            |            |
+          And "Easter" is coupon based promotion
+          And "Press Campaign" is coupon based promotion
           And promotion "New Year" has following rules defined:
             | type       | configuration |
             | Item count | Count: 3      |
@@ -43,7 +46,7 @@ Feature: Promotions
         Given I am on the dashboard page
          When I follow "Promotions"
          Then I should be on the promotion index page
-          And I should see 4 promotions in the list
+          And I should see 5 promotions in the list
 
     Scenario: Seeing empty index of promotions
         Given there are no promotions
@@ -152,6 +155,7 @@ Feature: Promotions
         Given I am on the page of promotion "Press Campaign"
           And I follow "Generate coupons"
          When I fill in "Amount" with "50"
+          And I fill in "Code length" with "5"
           And I press "Generate"
          Then I should see "Promotion coupons have been successfully generated."
 
@@ -160,6 +164,7 @@ Feature: Promotions
           And I follow "Generate coupons"
          When I fill in "Amount" with "5"
           And I fill in "Usage limit" with "5"
+          And I fill in "Code length" with "4"
           And I press "Generate"
          Then I should see "Promotion coupons have been successfully generated."
 
@@ -167,9 +172,19 @@ Feature: Promotions
         Given I am on the page of promotion "Press Campaign"
           And I follow "Generate coupons"
           And I fill in "Amount" with "50"
+          And I fill in "Code length" with "5"
           And I press "Generate"
          Then I should see "Promotion coupons have been successfully generated."
           And I should see "Total: 55"
+
+    Scenario: Generated coupon should have specific length
+        Given I am on the page of promotion "Easter"
+          And I follow "Generate coupons"
+          And I fill in "Amount" with "50"
+          And I fill in "Code length" with "5"
+          And I press "Generate"
+         Then I should see "Promotion coupons have been successfully generated."
+          And coupons code length for "Easter" should be "5"
 
     Scenario: Amount of coupons to generate is required
         Given I am on the page of promotion "Press Campaign"
@@ -184,6 +199,27 @@ Feature: Promotions
           And I fill in "Amount" with "-4"
          When I press "Generate"
          Then I should see "Amount of coupons to generate must be at least 1."
+
+    Scenario: Code length of coupons to generate is required
+        Given I am on the page of promotion "Press Campaign"
+          And I follow "Generate coupons"
+          And I leave "Code length" field blank
+         When I press "Generate"
+         Then I should see "Please enter coupon code length."
+
+    Scenario: Code length of coupons to generate must be at least 1
+        Given I am on the page of promotion "Press Campaign"
+          And I follow "Generate coupons"
+          And I fill in "Code length" with "-4"
+         When I press "Generate"
+         Then I should see "Coupon code must be at least 1 characters long."
+
+    Scenario: Code length of coupons to generate must not be longer than 40
+        Given I am on the page of promotion "Press Campaign"
+          And I follow "Generate coupons"
+          And I fill in "Code length" with "44"
+         When I press "Generate"
+         Then I should see "Coupon code must not be longer than 40 characters."
 
     Scenario: Usage limit of coupons generated must be at least 1
         Given I am on the page of promotion "Press Campaign"
@@ -211,7 +247,7 @@ Feature: Promotions
           And I fill in "Description" with "First 5 orders get 50% discount!"
           And I press "Create"
          When I go to the promotion index page
-         Then I should see 5 promotions in the list
+         Then I should see 6 promotions in the list
           And I should see promotion with name "First 5 pay half!" in that list
 
     Scenario: Accessing the promotion editing form

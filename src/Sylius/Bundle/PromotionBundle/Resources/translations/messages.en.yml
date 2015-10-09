@@ -45,6 +45,7 @@ sylius:
             amount: Amount
             usage_limit: Usage limit
             expires_at: Expires at
+            length: Code length
         promotion:
             actions: Actions
             coupon_based: Coupon based

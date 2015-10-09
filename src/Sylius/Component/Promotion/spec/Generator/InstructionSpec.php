@@ -15,6 +15,7 @@ use PhpSpec\ObjectBehavior;
 
 /**
  * @author Paweł Jędrzejewski <pawel@sylius.org>
+ * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
  */
 class InstructionSpec extends ObjectBehavior
 {
@@ -23,9 +24,9 @@ class InstructionSpec extends ObjectBehavior
         $this->shouldHaveType('Sylius\Component\Promotion\Generator\Instruction');
     }
 
-    function it_should_have_amount_equal_to_5_by_default()
+    function it_should_implement_instruction_interface()
     {
-        $this->getAmount()->shouldReturn(5);
+        $this->shouldImplement('Sylius\Component\Promotion\Generator\InstructionInterface');
     }
 
     function its_amount_should_be_mutable()
@@ -34,14 +35,30 @@ class InstructionSpec extends ObjectBehavior
         $this->getAmount()->shouldReturn(500);
     }
 
+    function it_should_not_have_amount_by_default()
+    {
+        $this->getAmount()->shouldReturn(null);
+    }
+    
     function it_should_not_have_usage_limit_by_default()
     {
         $this->getUsageLimit()->shouldReturn(null);
+    }
+
+    function it_should_not_have_code_length_by_default()
+    {
+        $this->getCodeLength()->shouldReturn(null);
     }
 
     function its_usage_limit_should_be_mutable()
     {
         $this->setUsageLimit(3);
         $this->getUsageLimit()->shouldReturn(3);
+    }
+
+    function its_code_length_should_be_mutable()
+    {
+        $this->setCodeLength(5);
+        $this->getCodeLength()->shouldReturn(5);
     }
 }

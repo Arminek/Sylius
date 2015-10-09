@@ -50,6 +50,7 @@ class CouponGeneratorSpec extends ObjectBehavior
     ) {
         $instruction->getAmount()->willReturn(1);
         $instruction->getUsageLimit()->willReturn(null);
+        $instruction->getCodeLength()->willReturn(6);
         $instruction->getExpiresAt()->willReturn(null);
 
         $repository->createNew()->willReturn($coupon);

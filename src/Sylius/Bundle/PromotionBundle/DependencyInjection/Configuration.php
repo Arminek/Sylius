@@ -35,7 +35,6 @@ class Configuration implements ConfigurationInterface
             ->addDefaultsIfNotSet()
             ->children()
                 ->scalarNode('driver')->defaultValue(SyliusResourceBundle::DRIVER_DOCTRINE_ORM)->end()
-                ->integerNode('coupon_code_length')->defaultValue(6)->cannotBeEmpty()->end()
             ->end()
         ;
 

@@ -92,6 +92,19 @@
                 <option name="groups">sylius</option>
             </constraint>
         </property>
+        <property name="codeLength">
+            <constraint name="Range">
+                <option name="min">1</option>
+                <option name="minMessage">sylius.promotion_coupon_generate_instruction.code_length.min</option>
+                <option name="max">40</option>
+                <option name="maxMessage">sylius.promotion_coupon_generate_instruction.code_length.max</option>
+                <option name="groups">sylius</option>
+            </constraint>
+            <constraint name="NotBlank">
+                <option name="message">sylius.promotion_coupon_generate_instruction.code_length.not_blank</option>
+                <option name="groups">sylius</option>
+            </constraint>
+        </property>
     </class>
 
 </constraint-mapping>

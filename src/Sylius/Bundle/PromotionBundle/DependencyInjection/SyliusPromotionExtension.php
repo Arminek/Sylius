@@ -26,13 +26,11 @@ class SyliusPromotionExtension extends AbstractResourceExtension
      */
     public function load(array $config, ContainerBuilder $container)
     {
-        $config = $this->configure(
+        $this->configure(
             $config,
             new Configuration(),
             $container,
             self::CONFIGURE_LOADER | self::CONFIGURE_DATABASE | self::CONFIGURE_PARAMETERS | self::CONFIGURE_VALIDATORS
         );
-
-        $container->setParameter('sylius.coupon_code_length', $config['coupon_code_length']);
     }
 }

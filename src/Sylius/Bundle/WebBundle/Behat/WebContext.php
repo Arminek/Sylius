@@ -16,7 +16,9 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Mink\Element\DocumentElement;
 use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\ElementNotFoundException;
+use Behat\Mink\Exception\ExpectationException;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
+use Doctrine\Common\Collections\Collection;
 use Sylius\Bundle\ResourceBundle\Behat\WebContext as BaseWebContext;
 use Symfony\Component\Intl\Intl;
 
@@ -703,6 +705,16 @@ class WebContext extends BaseWebContext implements SnippetAcceptingContext
         $this->pressButton('Save changes');
     }
 
+    /**
+     * @Then coupons code length for :promotionName should be :length
+     */
+    public function couponsCodeLengthForShouldBe($promotionName, $length)
+    {
+        $promotion = $this->findOneByName('promotion', $promotionName);
+        $coupons = $promotion->getCoupons();
+        $this->assertCouponsCodeLength($coupons, (int) $length);
+    }
+
     private function assertRoute($route)
     {
         $this->assertSession()->addressEquals($this->generatePageUrl($route));
@@ -710,6 +722,23 @@ class WebContext extends BaseWebContext implements SnippetAcceptingContext
         try {
             $this->assertStatusCodeEquals(200);
         } catch (UnsupportedDriverActionException $e) {
+        }
+    }
+
+    /**
+     * @param Collection $coupons
+     * @param int $expectedLength
+     *
+     * @throws ExpectationException
+     */
+    protected function assertCouponsCodeLength(Collection $coupons, $expectedLength)
+    {
+        $couponCodeLength = strlen($coupons->current()->getCode());
+        if($couponCodeLength !== $expectedLength) {
+            throw new ExpectationException(
+                sprintf('Invalid coupon code length, expected length should be "%d"', $expectedLength),
+                $this->getSession()
+            );
         }
     }
 

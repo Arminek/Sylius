@@ -45,16 +45,20 @@ class CouponGenerator implements CouponGeneratorInterface
     /**
      * {@inheritdoc}
      */
-    public function generate(PromotionInterface $promotion, Instruction $instruction)
+    public function generate(PromotionInterface $promotion, InstructionInterface $instruction)
     {
         $generatedCoupons = array();
+        $usageLimit = $instruction->getUsageLimit();
+        $codeLength = $instruction->getCodeLength();
+        $expiresAt = $instruction->getExpiresAt();
+        
         for ($i = 0, $amount = $instruction->getAmount(); $i < $amount; $i++) {
             $coupon = $this->repository->createNew();
             $coupon->setPromotion($promotion);
-            $coupon->setCode($this->generateUniqueCode());
-            $coupon->setUsageLimit($instruction->getUsageLimit());
-            $coupon->setExpiresAt($instruction->getExpiresAt());
-
+            $coupon->setCode($this->generateUniqueCode($codeLength));
+            $coupon->setUsageLimit($usageLimit);
+            $coupon->setExpiresAt($expiresAt);
+            
             $generatedCoupons[] = $coupon;
 
             $this->manager->persist($coupon);
@@ -68,13 +72,19 @@ class CouponGenerator implements CouponGeneratorInterface
     /**
      * {@inheritdoc}
      */
-    public function generateUniqueCode()
+    public function generateUniqueCode($codeLength)
     {
         $code = null;
 
+        if (1 > $codeLength || 40 < $codeLength) {
+            throw new \InvalidArgumentException(
+                'Invalid code length should be between 1 and 40'
+            );
+        }
+
         do {
             $hash = sha1(microtime(true));
-            $code = strtoupper(substr($hash, mt_rand(0, 33), 6));
+            $code = strtoupper(substr($hash, 0, $codeLength));
         } while ($this->isUsedCode($code));
 
         return $code;

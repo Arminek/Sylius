@@ -25,3 +25,7 @@ sylius:
             not_blank: Please enter amount of coupons to generate.
         usage_limit:
             min: Usage limit of generated coupons must be at least {{ limit }}.
+        code_length:
+            min: Coupon code must be at least {{ limit }} characters long.
+            max: Coupon code must not be longer than {{ limit }} characters.
+            not_blank: Please enter coupon code length.
