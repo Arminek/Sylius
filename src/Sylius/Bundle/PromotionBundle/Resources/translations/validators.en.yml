@@ -29,3 +29,4 @@ sylius:
             min: Coupon code must be at least {{ limit }} characters long.
             max: Coupon code must not be longer than {{ limit }} characters.
             not_blank: Please enter coupon code length.
+        generation_amount: Invalid coupons code length or coupons amount. Already generated coupons %generatedAmount%, possible coupons amount %possibleAmount%, expected coupons amount %expectedAmount%

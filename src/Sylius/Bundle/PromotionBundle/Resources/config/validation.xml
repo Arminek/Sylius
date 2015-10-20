@@ -74,6 +74,9 @@
     </class>
 
     <class name="Sylius\Component\Promotion\Generator\Instruction">
+        <constraint name="Sylius\Bundle\PromotionBundle\Validator\Constraints\GenerationAmount">
+            <option name="groups">sylius</option>
+        </constraint>
         <property name="amount">
             <constraint name="NotBlank">
                 <option name="message">sylius.promotion_coupon_generate_instruction.amount.not_blank</option>

@@ -177,6 +177,15 @@ Feature: Promotions
          Then I should see "Promotion coupons have been successfully generated."
           And I should see "Total: 55"
 
+    Scenario: Generated coupon appears on the list of coupons
+        Given I am on the page of promotion "Press Campaign"
+          And I follow "Generate coupons"
+          And I fill in "Amount" with "17"
+          And I fill in "Code length" with "40"
+          And I press "Generate"
+         Then I should see "Promotion coupons have been successfully generated."
+          And I should see "Total: 21"
+
     Scenario: Generated coupon should have specific length
         Given I am on the page of promotion "Easter"
           And I follow "Generate coupons"

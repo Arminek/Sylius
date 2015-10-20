@@ -25,21 +25,28 @@ class CouponGenerator implements CouponGeneratorInterface
     /**
      * @var RepositoryInterface
      */
-    protected $repository;
+    protected $couponRepository;
 
     /**
      * @var EntityManagerInterface
      */
-    protected $manager;
+    protected $entityManager;
 
     /**
-     * @param RepositoryInterface    $repository
-     * @param EntityManagerInterface $manager
+     * @var array
      */
-    public function __construct(RepositoryInterface $repository, EntityManagerInterface $manager)
+    protected $generatedCoupons;
+
+    protected $instructionValidator;
+
+    /**
+     * @param RepositoryInterface    $couponRepository
+     * @param EntityManagerInterface $entityManager
+     */
+    public function __construct(RepositoryInterface $couponRepository, EntityManagerInterface $entityManager)
     {
-        $this->repository = $repository;
-        $this->manager = $manager;
+        $this->couponRepository = $couponRepository;
+        $this->entityManager = $entityManager;
     }
 
     /**
@@ -47,26 +54,29 @@ class CouponGenerator implements CouponGeneratorInterface
      */
     public function generate(PromotionInterface $promotion, InstructionInterface $instruction)
     {
-        $generatedCoupons = array();
         $usageLimit = $instruction->getUsageLimit();
         $codeLength = $instruction->getCodeLength();
         $expiresAt = $instruction->getExpiresAt();
+        $amount = $instruction->getAmount();
+        $this->generatedCoupons = $this->getAlreadyGeneratedCoupons();
+
+        $this->isGenerationPossible($codeLength, $amount);
         
-        for ($i = 0, $amount = $instruction->getAmount(); $i < $amount; $i++) {
-            $coupon = $this->repository->createNew();
+        for ($i = 0; $i < $amount; $i++) {
+            $coupon = $this->couponRepository->createNew();
             $coupon->setPromotion($promotion);
             $coupon->setCode($this->generateUniqueCode($codeLength));
             $coupon->setUsageLimit($usageLimit);
             $coupon->setExpiresAt($expiresAt);
             
-            $generatedCoupons[] = $coupon;
+            $this->generatedCoupons[] = $coupon;
 
-            $this->manager->persist($coupon);
+            $this->entityManager->persist($coupon);
         }
 
-        $this->manager->flush();
+        $this->entityManager->flush();
 
-        return $generatedCoupons;
+        return $this->generatedCoupons;
     }
 
     /**
@@ -78,7 +88,7 @@ class CouponGenerator implements CouponGeneratorInterface
 
         if (1 > $codeLength || 40 < $codeLength) {
             throw new \InvalidArgumentException(
-                'Invalid code length should be between 1 and 40'
+                sprintf('Invalid code length should be between 1 and 40. "%d" given', $codeLength)
             );
         }
 
@@ -97,12 +107,67 @@ class CouponGenerator implements CouponGeneratorInterface
      */
     protected function isUsedCode($code)
     {
-        $this->manager->getFilters()->disable('softdeleteable');
+        foreach($this->generatedCoupons as $coupon) {
+            if ($coupon->getCode() === $code) {
+                return true;
+            }
+        }
 
-        $isUsed = null !== $this->repository->findOneBy(array('code' => $code));
+        return false;
+    }
 
-        $this->manager->getFilters()->enable('softdeleteable');
+    /**
+     * @param int $expectedCodeLength
+     * @param int $expectedAmount
+     *
+     * @throws \InvalidArgumentException
+     */
+    protected function isGenerationPossible($expectedCodeLength, $expectedAmount)
+    {
+        $generatedAmount = $this->countCouponsByCodeLength($expectedCodeLength);
+        $possibleAmount = pow(16, $expectedCodeLength) - $generatedAmount;
 
-        return $isUsed;
+        if ($possibleAmount < $expectedAmount) {
+            throw new \InvalidArgumentException(
+                sprintf(
+                    'Invalid coupon code length or coupons amount. Already generated coupons "%d", '.
+                    'possible coupons amount "%d", expected coupons amount "%d"',
+                    $generatedAmount,
+                    $possibleAmount,
+                    $expectedAmount
+                )
+            );
+        }
+    }
+
+    /**
+     * @return array
+     */
+    protected function getAlreadyGeneratedCoupons()
+    {
+        $this->entityManager->getFilters()->disable('softdeleteable');
+        $coupons = $this->couponRepository->findAll();
+        $this->entityManager->getFilters()->enable('softdeleteable');
+
+        return $coupons;
+    }
+
+    /**
+     * @param $codeLength
+     *
+     * @return int
+     */
+    protected function countCouponsByCodeLength($codeLength)
+    {
+        $couponsAmount = 0;
+        foreach ($this->generatedCoupons as $coupon)
+        {
+            if (strlen($coupon->getCode()) === $codeLength)
+            {
+                $couponsAmount++;
+            }
+        }
+
+        return $couponsAmount;
     }
 }
