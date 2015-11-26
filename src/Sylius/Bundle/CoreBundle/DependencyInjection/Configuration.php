@@ -36,6 +36,7 @@ class Configuration implements ConfigurationInterface
         $this->addClassesSection($rootNode);
         $this->addRoutingSection($rootNode);
         $this->addCheckoutSection($rootNode);
+        $this->addSitemapSection($rootNode);
 
         return $treeBuilder;
     }
@@ -123,6 +124,23 @@ class Configuration implements ConfigurationInterface
                                 ->append($this->addCheckoutStepNode('finalize', 'SyliusWebBundle:Frontend/Checkout/Step:finalize.html.twig'))
                             ->end()
                         ->end()
+                    ->end()
+                ->end()
+            ->end()
+        ;
+    }
+
+    private function addSitemapSection(ArrayNodeDefinition $node)
+    {
+        $node
+            ->children()
+                ->arrayNode('sitemap')
+                    ->children()
+                        ->arrayNode('resources')
+                            ->prototype('scalar')->end()
+                        ->end()
+                        ->scalarNode('url_set_template')->end()
+                        ->scalarNode('template')->end()
                     ->end()
                 ->end()
             ->end()
