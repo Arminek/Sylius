@@ -397,6 +397,39 @@ default:
             filters:
                 tags: "@security"
 
+        ui-checkout:
+            contexts:
+                - Sylius\Behat\Context\Setup\ChannelContext:
+                    entityRepository: '@sylius.repository.channel'
+                    clipboard: '@sylius.behat.shared_storage'
+                    channelFactory: '@sylius.factory.channel'
+                    currencyFactory: '@sylius.factory.currency'
+                    paymentMethodFactory: '@sylius.factory.payment_method'
+                    zoneFactory: '@sylius.factory.zone'
+                    zoneMemberFactory: '@sylius.factory.zone_member'
+                    countryFactory: '@sylius.factory.country'
+                    shippingMethodFactory: '@sylius.factory.shipping_method'
+                - Sylius\Behat\Context\Setup\SecurityContext:
+                    clipboard: '@sylius.behat.shared_storage'
+                    securityService: '@sylius.behat.security'
+                - Sylius\Behat\Context\Setup\UserContext:
+                    entityRepository: '@sylius.repository.user'
+                    clipboard: '@sylius.behat.shared_storage'
+                    userFactory: '@sylius.factory.user'
+                    customerFactory: '@sylius.factory.customer'
+                - Sylius\Behat\Context\Setup\ProductContext:
+                    entityRepository: '@sylius.repository.product'
+                    clipboard: '@sylius.behat.shared_storage'
+                    productFactory: '@sylius.factory.product'
+                - Sylius\Behat\Context\Ui\CheckoutContext:
+                    clipboard: '@sylius.behat.shared_storage'
+                    productRepository: '@sylius.repository.product'
+                    orderRepository: '@sylius.repository.order'
+                - Sylius\Behat\Context\Hook\DoctrineORMContext:
+                    entityManager: '@doctrine.orm.entity_manager'
+            filters:
+                tags: "@ui-checkout"
+
     extensions:
         Lakion\Behat\MinkDebugExtension:
             directory: etc/build
