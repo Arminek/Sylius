@@ -9,14 +9,14 @@
  * file that was distributed with this source code.
  */
 
-namespace Sylius\Behat\Page\Shop;
+namespace Sylius\Behat\Page\Checkout;
 
 use SensioLabs\Behat\PageObjectExtension\PageObject\Page;
 
 /**
  * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
  */
-class LoginPage extends Page
+class CheckoutPaymentStep extends Page
 {
-    protected $path = '/login';
+    protected $path = '/checkout/payment';
 }

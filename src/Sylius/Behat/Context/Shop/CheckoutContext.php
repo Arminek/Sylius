@@ -17,11 +17,12 @@ use Sylius\Behat\Context\FeatureContext;
 use Sylius\Component\Channel\Model\ChannelInterface;
 use Sylius\Component\Core\Model\Channel;
 use Sylius\Component\Core\Model\CustomerInterface;
-use Sylius\Component\Core\Model\PaymentInterface;
 use Sylius\Component\Core\Model\UserInterface;
 use Sylius\Component\Currency\Model\CurrencyInterface;
 use Sylius\Component\Payment\Model\PaymentMethodInterface;
 use Sylius\Component\Product\Model\ProductInterface;
+use Symfony\Cmf\Component\Routing\ChainRouterInterface;
+use Symfony\Component\Security\Core\SecurityContextInterface;
 
 
 /**
@@ -65,11 +66,17 @@ class CheckoutContext extends FeatureContext implements SnippetAcceptingContext
         $currency->setExchangeRate(1.3);
         $currency->enable();
 
+        $currency2 = $this->getService('sylius.factory.currency')->createNew();
+        $currency2->setCode('EUR');
+        $currency2->setExchangeRate(1.5);
+        $currency2->enable();
+
         $channel->setDefaultCurrency($currency);
 
         $entityManager = $this->getService('sylius.manager.channel');
         $entityManager->persist($currency);
         $entityManager->persist($channel);
+        $entityManager->persist($currency2);
         $entityManager->flush();
 
     }
@@ -88,6 +95,9 @@ class CheckoutContext extends FeatureContext implements SnippetAcceptingContext
 
         $user->setCustomer($customer);
         $user->setPlainPassword($password);
+        $user->addRole('ROLE_USER');
+
+        $this->clipboard->setCurrentObject($user);
 
         $entityManager->persist($user);
         $entityManager->flush();
@@ -105,7 +115,7 @@ class CheckoutContext extends FeatureContext implements SnippetAcceptingContext
         $product->setPrice((int) $price);
         $product->setDescription('Awesome star wars mug');
 
-        $channel = $this->clipboard->getLatestObject();
+        $channel = $this->clipboard->getCurrentObject('channel');
         $product->addChannel($channel);
 
         $entityManager->persist($product);
@@ -127,7 +137,7 @@ class CheckoutContext extends FeatureContext implements SnippetAcceptingContext
         $paymentMethod->setDescription('Offline payment method');
 
         /** @var ChannelInterface $channel */
-        $channel = $this->clipboard->getLatestObject();
+        $channel = $this->clipboard->getCurrentObject('channel');
         $channel->addPaymentMethod($paymentMethod);
 
         $entityManager->persist($channel);
@@ -140,15 +150,23 @@ class CheckoutContext extends FeatureContext implements SnippetAcceptingContext
      */
     public function iAmLoggedInAs($email)
     {
+        $driver = $this->getSession()->getDriver();
+        $client = $driver->getClient();
         
+
+        $this->getService('sylius.behat.security')->logIn($email, 'main', $session);
     }
 
     /**
-     * @Given I added product :arg1 to cart
+     * @Given I added product :name to cart
      */
-    public function iAddedProductToCart($arg1)
+    public function iAddedProductToCart($name)
     {
-        throw new PendingException();
+        /** @var ProductInterface $product */
+        $product = $this->getService('sylius.repository.product')->findOneBy(array('name' => $name));
+        /** @var ChainRouterInterface $router */
+        $productShowPage = $this->getPage('Product\ProductShowPage')->open(array('slug' => $product->getSlug()));
+        $productShowPage->pressButton('Add to cart');
     }
 
     /**
@@ -156,7 +174,12 @@ class CheckoutContext extends FeatureContext implements SnippetAcceptingContext
      */
     public function iProceedSelectingOfflinePaymentMethod()
     {
-        throw new PendingException();
+        /** @var SecurityContextInterface $securityContext */
+        $securityContext =  $this->getService('security.context');
+        $token = $securityContext->getToken();
+
+        $this->getPage('Checkout\CheckoutPaymentStep')->open();
+        $content = $this->getSession()->getPage()->getText();
     }
 
     /**
