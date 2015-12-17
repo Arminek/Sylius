@@ -87,6 +87,10 @@ class SyliusCoreExtension extends AbstractResourceExtension implements PrependEx
 
         $definition = $container->findDefinition('sylius.context.currency');
         $definition->replaceArgument(0, new Reference($config['currency_storage']));
+
+        if ('test' === $container->getParameter('kernel.environment')) {
+            $this->loadServiceDefinitions($container, 'test_services.xml');
+        }
     }
 
     /**

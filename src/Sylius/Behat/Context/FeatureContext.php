@@ -13,6 +13,7 @@ namespace Sylius\Behat\Context;
 
 use SensioLabs\Behat\PageObjectExtension\Context\PageObjectContext;
 use Behat\Symfony2Extension\Context\KernelAwareContext;
+use Sylius\Bundle\CoreBundle\Behat\Services\SharedStorage;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Doctrine\ORM\EntityNotFoundException;
@@ -47,6 +48,11 @@ class FeatureContext extends PageObjectContext implements MinkAwareContext, Kern
      * @var array
      */
     protected $minkParameters;
+
+    /**
+     * @var SharedStorage
+     */
+    protected $clipboard;
 
     /**
      * {@inheritdoc}
@@ -85,6 +91,14 @@ class FeatureContext extends PageObjectContext implements MinkAwareContext, Kern
         $purger->purge();
 
         $entityManager->clear();
+    }
+
+    /**
+     * @BeforeScenario
+     */
+    public function setClipboard()
+    {
+        $this->clipboard = $this->getService('sylius.behat.shared_storage');
     }
 
     /**

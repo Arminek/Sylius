@@ -14,6 +14,7 @@ namespace Sylius\Behat\Context\Shop;
 use Behat\Behat\Tester\Exception\PendingException;
 use Behat\Behat\Context\SnippetAcceptingContext;
 use Sylius\Behat\Context\FeatureContext;
+use Sylius\Component\Channel\Model\ChannelInterface;
 
 
 /**
@@ -22,11 +23,21 @@ use Sylius\Behat\Context\FeatureContext;
 class CheckoutContext extends FeatureContext implements SnippetAcceptingContext
 {
     /**
-     * @Given that store is operating on a single channel
+     * @Transform /^channel "([^"]+)"$/
+     * @Transform /^"([^"]+)" channel$/
+     * @Transform :channel
      */
-    public function thatStoreIsOperatingOnASingleChannel()
+    public function castChannelNameToChannel($channelName)
     {
-        throw new PendingException();
+        return $this->getService('sylius.factory.channel')->createNamed($channelName);
+    }
+
+    /**
+     * @Given /that store is operating on the ("[^"]+" channel)/
+     */
+    public function thatStoreIsOperatingOnTheUnitedStatesChannel(ChannelInterface $channel)
+    {
+        $this->clipboard->setCurrentObject($channel);
     }
 
     /**
@@ -34,7 +45,7 @@ class CheckoutContext extends FeatureContext implements SnippetAcceptingContext
      */
     public function defaultCurrencyIsUsd()
     {
-        throw new PendingException();
+        $channel = $this->clipboard->getLatestObject();
     }
 
     /**
