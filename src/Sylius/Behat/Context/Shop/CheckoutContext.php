@@ -15,6 +15,13 @@ use Behat\Behat\Tester\Exception\PendingException;
 use Behat\Behat\Context\SnippetAcceptingContext;
 use Sylius\Behat\Context\FeatureContext;
 use Sylius\Component\Channel\Model\ChannelInterface;
+use Sylius\Component\Core\Model\Channel;
+use Sylius\Component\Core\Model\CustomerInterface;
+use Sylius\Component\Core\Model\PaymentInterface;
+use Sylius\Component\Core\Model\UserInterface;
+use Sylius\Component\Currency\Model\CurrencyInterface;
+use Sylius\Component\Payment\Model\PaymentMethodInterface;
+use Sylius\Component\Product\Model\ProductInterface;
 
 
 /**
@@ -37,7 +44,12 @@ class CheckoutContext extends FeatureContext implements SnippetAcceptingContext
      */
     public function thatStoreIsOperatingOnTheUnitedStatesChannel(ChannelInterface $channel)
     {
+        $channel->setCode('WEB-US');
         $this->clipboard->setCurrentObject($channel);
+
+        $entityManager = $this->getService('doctrine.orm.entity_manager');
+        $entityManager->persist($channel);
+        $entityManager->flush();
     }
 
     /**
@@ -45,23 +57,59 @@ class CheckoutContext extends FeatureContext implements SnippetAcceptingContext
      */
     public function defaultCurrencyIsUsd()
     {
+        /** @var Channel $channel */
         $channel = $this->clipboard->getLatestObject();
+        /** @var CurrencyInterface $currency */
+        $currency = $this->getService('sylius.factory.currency')->createNew();
+        $currency->setCode('USD');
+        $currency->setExchangeRate(1.3);
+        $currency->enable();
+
+        $channel->setDefaultCurrency($currency);
+
+        $entityManager = $this->getService('sylius.manager.channel');
+        $entityManager->persist($currency);
+        $entityManager->persist($channel);
+        $entityManager->flush();
+
     }
 
     /**
-     * @Given there is user :arg1 identified by :arg2
+     * @Given there is user :email identified by :password
      */
-    public function thereIsUserIdentifiedBy($arg1, $arg2)
+    public function thereIsUserIdentifiedBy($email, $password)
     {
-        throw new PendingException();
+        $entityManager = $this->getService('sylius.manager.user');
+        /** @var UserInterface $user */
+        $user = $this->getService('sylius.factory.user')->createNew();
+        /** @var CustomerInterface $customer */
+        $customer = $this->getService('sylius.factory.customer')->createNew();
+        $customer->setEmail($email);
+
+        $user->setCustomer($customer);
+        $user->setPlainPassword($password);
+
+        $entityManager->persist($user);
+        $entityManager->flush();
     }
 
     /**
-     * @Given catalog has a product :arg1 priced at $:arg2
+     * @Given catalog has a product :productName priced at $:price
      */
-    public function catalogHasAProductPricedAt($arg1, $arg2)
+    public function catalogHasAProductPricedAt($productName, $price)
     {
-        throw new PendingException();
+        $entityManager = $this->getService('sylius.manager.product');
+        /** @var ProductInterface $product */
+        $product = $this->getService('sylius.factory.product')->createNew();
+        $product->setName($productName);
+        $product->setPrice((int) $price);
+        $product->setDescription('Awesome star wars mug');
+
+        $channel = $this->clipboard->getLatestObject();
+        $product->addChannel($channel);
+
+        $entityManager->persist($product);
+        $entityManager->flush();
     }
 
     /**
@@ -69,15 +117,30 @@ class CheckoutContext extends FeatureContext implements SnippetAcceptingContext
      */
     public function storeAllowsPayingOffline()
     {
-        throw new PendingException();
+        $entityManager = $this->getService('sylius.manager.payment');
+        /** @var PaymentMethodInterface $paymentMethod */
+        $paymentMethod = $this->getService('sylius.factory.payment_method')->createNew();
+        $paymentMethod->setCode('PM1');
+        $paymentMethod->setGateway('offline');
+        $paymentMethod->setEnabled(true);
+        $paymentMethod->setName('Offline');
+        $paymentMethod->setDescription('Offline payment method');
+
+        /** @var ChannelInterface $channel */
+        $channel = $this->clipboard->getLatestObject();
+        $channel->addPaymentMethod($paymentMethod);
+
+        $entityManager->persist($channel);
+        $entityManager->persist($paymentMethod);
+        $entityManager->flush();
     }
 
     /**
-     * @Given I am logged in as :arg1
+     * @Given I am logged in as :email
      */
-    public function iAmLoggedInAs($arg1)
+    public function iAmLoggedInAs($email)
     {
-        throw new PendingException();
+        
     }
 
     /**

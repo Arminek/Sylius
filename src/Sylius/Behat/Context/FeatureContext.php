@@ -13,7 +13,7 @@ namespace Sylius\Behat\Context;
 
 use SensioLabs\Behat\PageObjectExtension\Context\PageObjectContext;
 use Behat\Symfony2Extension\Context\KernelAwareContext;
-use Sylius\Bundle\CoreBundle\Behat\Services\SharedStorage;
+use Sylius\Component\Core\Test\Services\SharedStorage;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Doctrine\ORM\EntityNotFoundException;
