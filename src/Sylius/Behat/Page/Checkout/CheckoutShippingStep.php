@@ -16,10 +16,19 @@ use SensioLabs\Behat\PageObjectExtension\PageObject\Page;
 /**
  * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
  */
-class CheckoutPaymentStep extends Page
+class CheckoutShippingStep extends Page
 {
     /**
      * @var string
      */
-    protected $path = '/checkout/payment';
+    protected $path = '/checkout/shipping';
+
+    /**
+     * @param string $locator
+     */
+    public function pressRadio($locator)
+    {
+        $radio = $this->findField($locator);
+        $this->fillField($radio->getAttribute('name'), $radio->getAttribute('value'));
+    }
 }

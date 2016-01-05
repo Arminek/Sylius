@@ -1,0 +1,122 @@
+<?php
+
+/*
+ * This file is part of the Sylius package.
+ *
+ * (c) Paweł Jędrzejewski
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Sylius\Behat\Factory;
+
+use Behat\Mink\Mink;
+use SensioLabs\Behat\PageObjectExtension\PageObject\Element;
+use SensioLabs\Behat\PageObjectExtension\PageObject\Factory\ClassNameResolver;
+use SensioLabs\Behat\PageObjectExtension\PageObject\InlineElement;
+use SensioLabs\Behat\PageObjectExtension\PageObject\Page;
+use Symfony\Cmf\Component\Routing\ChainRouterInterface;
+use SensioLabs\Behat\PageObjectExtension\PageObject\Factory;
+
+/**
+ * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
+ */
+class PageObjectFactory implements Factory
+{
+    /**
+     * @var ClassNameResolver
+     */
+    private $classNameResolver;
+
+    /**
+     * @var Factory
+     */
+    private $defaultFactory;
+
+    /**
+     * @var Mink
+     */
+    private $mink = null;
+
+    /**
+     * @var ChainRouterInterface
+     */
+    private $router;
+
+    /**
+     * @var array
+     */
+    private $pageParameters = array();
+
+
+    public function __construct(
+        ClassNameResolver $classNameResolver,
+        Factory $defaultFactory,
+        Mink $mink,
+        ChainRouterInterface $router,
+        array $pageParameters
+    ) {
+        $this->classNameResolver = $classNameResolver;
+        $this->defaultFactory = $defaultFactory;
+        $this->mink = $mink;
+        $this->router = $router;
+        $this->pageParameters = $pageParameters;
+    }
+
+    /**
+     * @param string $class
+     *
+     * @return PageObject
+     */
+    public function instantiate($class)
+    {
+        return $this->defaultFactory->instantiate($class);
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return Page
+     */
+    public function createPage($name)
+    {
+        $pageClass = $this->classNameResolver->resolvePage($name);
+
+        return $this->instantiatePage($pageClass);
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return Element
+     */
+    public function createElement($name)
+    {
+        return $this->defaultFactory->createElement($name);
+    }
+
+    /**
+     * @param string|array
+     *
+     * @return InlineElement
+     */
+    public function createInlineElement($selector)
+    {
+        return $this->defaultFactory->createInlineElement($selector);
+    }
+
+    /**
+     * @param string $pageClass
+     *
+     * @return Page
+     */
+    private function instantiatePage($pageClass)
+    {
+        if (!is_subclass_of($pageClass, 'Sylius\Behat\Page\RootPage')) {
+            throw new \InvalidArgumentException(sprintf('Not a symfony page object class: %s', $pageClass));
+        }
+
+        return new $pageClass($this->mink->getSession(), $this, $this->pageParameters, $this->router);
+    }
+}

@@ -16,10 +16,20 @@ use SensioLabs\Behat\PageObjectExtension\PageObject\Page;
 /**
  * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
  */
-class CheckoutPaymentStep extends Page
+class CheckoutAddressingStep extends Page
 {
     /**
      * @var string
      */
-    protected $path = '/checkout/payment';
+    protected $path = '/checkout/addressing';
+
+    /**
+     * @param array $urlParameters
+     *
+     * @return string
+     */
+    protected function getUrl(array $urlParameters = array())
+    {
+        return ;
+    }
 }

@@ -11,12 +11,27 @@
 
 namespace Sylius\Behat\Page\Product;
 
-use SensioLabs\Behat\PageObjectExtension\PageObject\Page;
+use SensioLabs\Behat\PageObjectExtension\PageObject\Factory;
+use Sylius\Behat\Page\RootPage;
+use Sylius\Component\Product\Model\ProductInterface;
 
 /**
  * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
  */
-class ProductShowPage extends Page
+class ProductShowPage extends RootPage
 {
-    protected $path = '/p/{slug}';
+    /**
+     * @param ProductInterface $product
+     *
+     * @return Page
+     */
+    public function openSpecificProductPage(ProductInterface $product)
+    {
+        $url = $this->router->generate($product);
+
+        $this->getSession()->visit($url);
+        $this->verifyResponse();
+
+        return $this;
+    }
 }

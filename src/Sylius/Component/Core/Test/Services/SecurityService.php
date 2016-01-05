@@ -11,11 +11,10 @@
  
 namespace Sylius\Component\Core\Test\Services;
 
+use Behat\Mink\Session;
 use Sylius\Component\User\Repository\UserRepositoryInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
-use Symfony\Component\Security\Core\SecurityContextInterface;
 
 /**
  * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
@@ -28,11 +27,6 @@ class SecurityService
     private $userRepository;
 
     /**
-     * @var SecurityContextInterface
-     */
-    private $securityContext;
-
-    /**
      * @var SessionInterface
      */
     private $session;
@@ -42,25 +36,26 @@ class SecurityService
      */
     public function __construct(
         UserRepositoryInterface $userRepository,
-        SecurityContextInterface $securityContext,
         SessionInterface $session
     ) {
         $this->userRepository = $userRepository;
-        $this->securityContext = $securityContext;
         $this->session = $session;
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $email
+     * @param string $providerKey
+     * @param Session $minkSession
      */
-    public function logIn($email, $firewallName)
+    public function logIn($email, $providerKey, Session $minkSession)
     {
         $user = $this->userRepository->findOneBy(array('username' => $email));
 
-        $token = new UsernamePasswordToken($email, null, $firewallName, $user->getRoles());
-        $this->securityContext->setToken($token);
+        $token = new UsernamePasswordToken($user->getEmail(), $user->getPassword(), $providerKey, $user->getRoles());
 
-        $this->session->set('_security_main', serialize($token));
+        $this->session->set('_security_user', serialize($token));
         $this->session->save();
+
+        $minkSession->setCookie($this->session->getName(), $this->session->getId());
     }
 }

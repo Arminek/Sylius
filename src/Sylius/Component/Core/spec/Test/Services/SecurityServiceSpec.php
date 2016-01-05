@@ -11,12 +11,13 @@
  
 namespace spec\Sylius\Component\Core\Test\Services;
 
+use Behat\Mink\Session;
 use PhpSpec\ObjectBehavior;
 use Sylius\Component\User\Model\UserInterface;
 use Sylius\Component\User\Repository\UserRepositoryInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
-use Symfony\Component\Security\Core\SecurityContextInterface;
 
 /**
  * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
@@ -25,9 +26,9 @@ class SecurityServiceSpec extends ObjectBehavior
 {
     function let(
         UserRepositoryInterface $userRepository,
-        SecurityContextInterface $securityContext
+        SessionInterface $session
     ) {
-        $this->beConstructedWith($userRepository, $securityContext);
+        $this->beConstructedWith($userRepository, $session);
     }
 
     function it_is_initializable()
@@ -37,18 +38,25 @@ class SecurityServiceSpec extends ObjectBehavior
 
     function it_log_user_in(
         $userRepository,
-        $securityContext,
-        UserInterface $user
+        $session,
+        UserInterface $user,
+        Session $minkSession
     ) {
         $userRoles = ['ROLE_USER'];
         $userRepository->findOneBy(array('username' => 'sylius@example.com'))->willReturn($user);
         $user->getRoles()->willReturn($userRoles);
         $user->getEmail()->willReturn('sylius@example.com');
+        $user->getPassword()->willReturn('xyz');
 
         /** @var TokenStorageInterface $tokenStorage */
-        $token = new UsernamePasswordToken('sylius@example.com', null, 'default', $userRoles);
-        $securityContext->setToken($token)->shouldBeCalled();
+        $token = new UsernamePasswordToken('sylius@example.com', 'xyz', 'default', $userRoles);
+        $session->set('_security_user', serialize($token))->shouldBeCalled();
+        $session->save()->shouldBeCalled();
+        $session->getName()->willReturn('MOCKEDSID');
+        $session->getId()->willReturn('xyzc123');
 
-        $this->logIn('sylius@example.com', 'default');
+        $minkSession->setCookie('MOCKEDSID', 'xyzc123')->shouldBeCalled();
+
+        $this->logIn('sylius@example.com', 'default', $minkSession);
     }
 }

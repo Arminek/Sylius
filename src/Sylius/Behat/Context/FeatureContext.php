@@ -11,6 +11,7 @@
 
 namespace Sylius\Behat\Context;
 
+use Doctrine\ORM\EntityManagerInterface;
 use SensioLabs\Behat\PageObjectExtension\Context\PageObjectContext;
 use Behat\Symfony2Extension\Context\KernelAwareContext;
 use Sylius\Component\Core\Test\Services\SharedStorage;
@@ -55,6 +56,11 @@ class FeatureContext extends PageObjectContext implements MinkAwareContext, Kern
     protected $clipboard;
 
     /**
+     * @var EntityManagerInterface
+     */
+    private $entityManager = null;
+
+    /**
      * {@inheritdoc}
      */
     public function setMink(Mink $mink)
@@ -84,13 +90,15 @@ class FeatureContext extends PageObjectContext implements MinkAwareContext, Kern
      */
     public function purgeDatabase(BeforeScenarioScope $scope)
     {
-        $entityManager = $this->getService('doctrine.orm.entity_manager');
-        $entityManager->getConnection()->getConfiguration()->setSQLLogger(null);
+        if (null === $this->entityManager) {
+            $this->entityManager = $this->getService('doctrine.orm.entity_manager');
+        }
+        $this->entityManager->getConnection()->getConfiguration()->setSQLLogger(null);
 
-        $purger = new ORMPurger($entityManager);
+        $purger = new ORMPurger($this->entityManager);
         $purger->purge();
 
-        $entityManager->clear();
+        $this->entityManager->clear();
     }
 
     /**
@@ -99,6 +107,14 @@ class FeatureContext extends PageObjectContext implements MinkAwareContext, Kern
     public function setClipboard()
     {
         $this->clipboard = $this->getService('sylius.behat.shared_storage');
+    }
+
+    /**
+     * @BeforeScenario
+     */
+    public function setEntityManager(BeforeScenarioScope $scope)
+    {
+        $this->entityManager = $this->getService('doctrine.orm.entity_manager');
     }
 
     /**
@@ -135,9 +151,7 @@ class FeatureContext extends PageObjectContext implements MinkAwareContext, Kern
         $objectRepository = $this->getService($repositoryName);
         $object = $objectRepository->findOneBy($values);
 
-        if (null === $object) {
-            throw new EntityNotFoundException();
-        }
+        $this->assertEntityIsNotNull($object);
 
         return $object;
     }
@@ -157,13 +171,20 @@ class FeatureContext extends PageObjectContext implements MinkAwareContext, Kern
     }
 
     /**
-     * @param string $path
-     * @param array  $parameters
+     * @param $object
      */
-    protected function assertCurrentPagePath($path, array $parameters = array())
+    protected function persistObject($object)
     {
-        $expectedPage = $this->getService('router')->generate($path, $parameters);
-        $this->mink->assertSession()->addressEquals($expectedPage);
+        if (!is_object($object)) {
+            throw new \InvalidArgumentException(sprintf('This %s is not an object', $object));
+        }
+
+        $this->entityManager->persist($object);
+    }
+
+    protected function flushEntityManager()
+    {
+        $this->entityManager->flush();
     }
 
     /**
@@ -171,7 +192,7 @@ class FeatureContext extends PageObjectContext implements MinkAwareContext, Kern
      *
      * @throws EntityNotFoundException
      */
-    protected function assertEntityIsNotNull($object)
+    private function assertEntityIsNotNull($object)
     {
         if (null === $object) {
             throw new EntityNotFoundException();

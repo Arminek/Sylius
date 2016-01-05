@@ -14,15 +14,23 @@ namespace Sylius\Behat\Context\Shop;
 use Behat\Behat\Tester\Exception\PendingException;
 use Behat\Behat\Context\SnippetAcceptingContext;
 use Sylius\Behat\Context\FeatureContext;
+use Sylius\Component\Addressing\Model\CountryInterface;
+use Sylius\Component\Addressing\Model\ZoneInterface;
+use Sylius\Component\Addressing\Model\ZoneMemberCountry;
+use Sylius\Component\Addressing\Model\ZoneMemberInterface;
 use Sylius\Component\Channel\Model\ChannelInterface;
 use Sylius\Component\Core\Model\Channel;
 use Sylius\Component\Core\Model\CustomerInterface;
+use Sylius\Component\Core\Model\ShippingMethod;
 use Sylius\Component\Core\Model\UserInterface;
 use Sylius\Component\Currency\Model\CurrencyInterface;
 use Sylius\Component\Payment\Model\PaymentMethodInterface;
 use Sylius\Component\Product\Model\ProductInterface;
+use Sylius\Component\Shipping\Calculator\DefaultCalculators;
 use Symfony\Cmf\Component\Routing\ChainRouterInterface;
+use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\SecurityContextInterface;
+use Symfony\Component\Security\Csrf\TokenStorage\TokenStorageInterface;
 
 
 /**
@@ -46,11 +54,31 @@ class CheckoutContext extends FeatureContext implements SnippetAcceptingContext
     public function thatStoreIsOperatingOnTheUnitedStatesChannel(ChannelInterface $channel)
     {
         $channel->setCode('WEB-US');
-        $this->clipboard->setCurrentObject($channel);
 
-        $entityManager = $this->getService('doctrine.orm.entity_manager');
-        $entityManager->persist($channel);
-        $entityManager->flush();
+        /** @var CountryInterface $country */
+        $country = $this->getService('sylius.factory.country')->createNew();
+        $country->setIsoName('US');
+        $country->setEnabled(true);
+
+        /** @var ZoneInterface $zone */
+        $zone = $this->getService('sylius.factory.zone')->createNew();
+        $zone->setName('USA');
+        $zone->setType('country');
+
+        /** @var ZoneMemberCountry $zoneMember */
+        $zoneMember = $this->getService('sylius.factory.zone_member_country')->createNew();
+        $zoneMember->setCountry($country);
+        $zoneMember->setBelongsTo($zone);
+
+        $zone->addMember($zoneMember);
+
+        $this->clipboard->setCurrentObject($channel);
+        $this->clipboard->setCurrentObject($country);
+        $this->clipboard->setCurrentObject($zoneMember);
+        $this->clipboard->setCurrentObject($zone);
+
+        $this->persistObject($channel);
+        $this->flushEntityManager();
     }
 
     /**
@@ -59,7 +87,7 @@ class CheckoutContext extends FeatureContext implements SnippetAcceptingContext
     public function defaultCurrencyIsUsd()
     {
         /** @var Channel $channel */
-        $channel = $this->clipboard->getLatestObject();
+        $channel = $this->clipboard->getCurrentObject('channel');
         /** @var CurrencyInterface $currency */
         $currency = $this->getService('sylius.factory.currency')->createNew();
         $currency->setCode('USD');
@@ -73,12 +101,10 @@ class CheckoutContext extends FeatureContext implements SnippetAcceptingContext
 
         $channel->setDefaultCurrency($currency);
 
-        $entityManager = $this->getService('sylius.manager.channel');
-        $entityManager->persist($currency);
-        $entityManager->persist($channel);
-        $entityManager->persist($currency2);
-        $entityManager->flush();
-
+        $this->persistObject($currency);
+        $this->persistObject($channel);
+        $this->persistObject($currency2);
+        $this->flushEntityManager();
     }
 
     /**
@@ -86,7 +112,6 @@ class CheckoutContext extends FeatureContext implements SnippetAcceptingContext
      */
     public function thereIsUserIdentifiedBy($email, $password)
     {
-        $entityManager = $this->getService('sylius.manager.user');
         /** @var UserInterface $user */
         $user = $this->getService('sylius.factory.user')->createNew();
         /** @var CustomerInterface $customer */
@@ -96,11 +121,12 @@ class CheckoutContext extends FeatureContext implements SnippetAcceptingContext
         $user->setCustomer($customer);
         $user->setPlainPassword($password);
         $user->addRole('ROLE_USER');
+        $user->addRole('ROLE_ADMIN');
 
         $this->clipboard->setCurrentObject($user);
 
-        $entityManager->persist($user);
-        $entityManager->flush();
+        $this->persistObject($user);
+        $this->flushEntityManager();
     }
 
     /**
@@ -108,7 +134,6 @@ class CheckoutContext extends FeatureContext implements SnippetAcceptingContext
      */
     public function catalogHasAProductPricedAt($productName, $price)
     {
-        $entityManager = $this->getService('sylius.manager.product');
         /** @var ProductInterface $product */
         $product = $this->getService('sylius.factory.product')->createNew();
         $product->setName($productName);
@@ -118,8 +143,8 @@ class CheckoutContext extends FeatureContext implements SnippetAcceptingContext
         $channel = $this->clipboard->getCurrentObject('channel');
         $product->addChannel($channel);
 
-        $entityManager->persist($product);
-        $entityManager->flush();
+        $this->persistObject($product);
+        $this->flushEntityManager();
     }
 
     /**
@@ -127,7 +152,6 @@ class CheckoutContext extends FeatureContext implements SnippetAcceptingContext
      */
     public function storeAllowsPayingOffline()
     {
-        $entityManager = $this->getService('sylius.manager.payment');
         /** @var PaymentMethodInterface $paymentMethod */
         $paymentMethod = $this->getService('sylius.factory.payment_method')->createNew();
         $paymentMethod->setCode('PM1');
@@ -140,9 +164,9 @@ class CheckoutContext extends FeatureContext implements SnippetAcceptingContext
         $channel = $this->clipboard->getCurrentObject('channel');
         $channel->addPaymentMethod($paymentMethod);
 
-        $entityManager->persist($channel);
-        $entityManager->persist($paymentMethod);
-        $entityManager->flush();
+        $this->persistObject($channel);
+        $this->persistObject($paymentMethod);
+        $this->flushEntityManager();
     }
 
     /**
@@ -150,11 +174,7 @@ class CheckoutContext extends FeatureContext implements SnippetAcceptingContext
      */
     public function iAmLoggedInAs($email)
     {
-        $driver = $this->getSession()->getDriver();
-        $client = $driver->getClient();
-        
-
-        $this->getService('sylius.behat.security')->logIn($email, 'main', $session);
+        $this->getService('sylius.behat.security')->logIn($email, 'main', $this->getSession());
     }
 
     /**
@@ -164,8 +184,8 @@ class CheckoutContext extends FeatureContext implements SnippetAcceptingContext
     {
         /** @var ProductInterface $product */
         $product = $this->getService('sylius.repository.product')->findOneBy(array('name' => $name));
-        /** @var ChainRouterInterface $router */
-        $productShowPage = $this->getPage('Product\ProductShowPage')->open(array('slug' => $product->getSlug()));
+
+        $productShowPage = $this->getPage('Product\ProductShowPage')->openSpecificProductPage($product);
         $productShowPage->pressButton('Add to cart');
     }
 
@@ -174,12 +194,38 @@ class CheckoutContext extends FeatureContext implements SnippetAcceptingContext
      */
     public function iProceedSelectingOfflinePaymentMethod()
     {
-        /** @var SecurityContextInterface $securityContext */
-        $securityContext =  $this->getService('security.context');
-        $token = $securityContext->getToken();
+        $zone = $this->clipboard->getCurrentObject('zone');
+        $country = $this->clipboard->getCurrentObject('country');
+        $zoneMember = $this->clipboard->getCurrentObject('zone_member_country');
 
-        $this->getPage('Checkout\CheckoutPaymentStep')->open();
-        $content = $this->getSession()->getPage()->getText();
+        /** @var ShippingMethod $shippingMethod */
+        $shippingMethod = $this->getService('sylius.factory.shipping_method')->createNew();
+        $shippingMethod->setEnabled(true);
+        $shippingMethod->setCode('SM1');
+        $shippingMethod->setName('DHL');
+        $shippingMethod->setCurrentLocale('US');
+        $shippingMethod->setConfiguration(array('amount' => 200));
+        $shippingMethod->setCalculator(DefaultCalculators::PER_ITEM_RATE);
+        $shippingMethod->setZone($zone);
+
+        $this->persistObject($shippingMethod);
+        $this->persistObject($zoneMember);
+        $this->persistObject($country);
+        $this->persistObject($zone);
+        $this->flushEntityManager();
+
+        $checkoutAddressingPage = $this->getPage('Checkout\CheckoutAddressingStep')->open();
+        $checkoutAddressingPage->fillField('First name', 'John');
+        $checkoutAddressingPage->fillField('Last name', 'Doe');
+        $checkoutAddressingPage->selectFieldOption('Country', 'United States');
+        $checkoutAddressingPage->fillField('Street', '0635 Myron Hollow Apt. 711');
+        $checkoutAddressingPage->fillField('City', 'North Bridget');
+        $checkoutAddressingPage->fillField('Postcode', '93-554');
+        $checkoutAddressingPage->fillField('Phone number', '321123456');
+        $checkoutAddressingPage->pressButton('Continue');
+        $checkoutShippingPage = $this->getPage('Checkout\CheckoutShippingStep');
+        $checkoutShippingPage->pressRadio('DHL');
+        $checkoutShippingPage->pressButton('Continue');
     }
 
     /**
