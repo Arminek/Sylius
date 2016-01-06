@@ -81,8 +81,7 @@
         "willdurand/hateoas-bundle": "^0.4|^1.0",
         "winzou/state-machine-bundle": "~0.2",
         "ocramius/proxy-manager": "^1.0",
-        "symfony/proxy-manager-bridge": "^2.7",
-        "sensiolabs/behat-page-object-extension": "master-dev"
+        "symfony/proxy-manager-bridge": "^2.7"
     },
     "require-dev": {
         "phpspec/phpspec": "^2.4",
@@ -96,6 +95,7 @@
         "lakion/mink-debug-extension": "^1.0.1",
         "lakion/api-test-case": "^1.0@dev",
         "coduo/php-matcher": "^2.1@dev",
+        "sensiolabs/behat-page-object-extension": "master-dev",
         "phpunit/phpunit": "~4.1"
     },
     "replace": {

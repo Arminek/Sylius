@@ -16,10 +16,10 @@ use Sylius\Behat\Page\SymfonyPage;
 /**
  * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
  */
-class CheckoutPaymentStep extends SymfonyPage
+class CheckoutFinalizeStep extends SymfonyPage
 {
     public function getRouteName()
     {
-        return 'sylius_checkout_payment';
+        return 'sylius_checkout_finalize';
     }
 }

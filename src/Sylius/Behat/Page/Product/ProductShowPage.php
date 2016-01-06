@@ -12,18 +12,18 @@
 namespace Sylius\Behat\Page\Product;
 
 use SensioLabs\Behat\PageObjectExtension\PageObject\Factory;
-use Sylius\Behat\Page\RootPage;
+use Sylius\Behat\Page\SymfonyPage;
 use Sylius\Component\Product\Model\ProductInterface;
 
 /**
  * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
  */
-class ProductShowPage extends RootPage
+class ProductShowPage extends SymfonyPage
 {
     /**
      * @param ProductInterface $product
      *
-     * @return Page
+     * @return ProductShowPage
      */
     public function openSpecificProductPage(ProductInterface $product)
     {
@@ -33,5 +33,10 @@ class ProductShowPage extends RootPage
         $this->verifyResponse();
 
         return $this;
+    }
+
+    public function getRouteName()
+    {
+        return null;
     }
 }

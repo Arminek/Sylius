@@ -11,24 +11,15 @@
 
 namespace Sylius\Behat\Page\Checkout;
 
-use SensioLabs\Behat\PageObjectExtension\PageObject\Page;
+use Sylius\Behat\Page\SymfonyPage;
 
 /**
  * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
  */
-class CheckoutShippingStep extends Page
+class CheckoutShippingStep extends SymfonyPage
 {
-    /**
-     * @var string
-     */
-    protected $path = '/checkout/shipping';
-
-    /**
-     * @param string $locator
-     */
-    public function pressRadio($locator)
+    public function getRouteName()
     {
-        $radio = $this->findField($locator);
-        $this->fillField($radio->getAttribute('name'), $radio->getAttribute('value'));
+        return 'sylius_checkout_shipping';
     }
 }

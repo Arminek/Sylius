@@ -9,17 +9,15 @@
  * file that was distributed with this source code.
  */
 
-namespace Sylius\Behat\Page\Checkout;
-
-use Sylius\Behat\Page\SymfonyPage;
+namespace Sylius\Behat\Factory;
 
 /**
  * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
  */
-class CheckoutPaymentStep extends SymfonyPage
+interface RouteNameAwareInterface
 {
-    public function getRouteName()
-    {
-        return 'sylius_checkout_payment';
-    }
+    /**
+     * @return string
+     */
+    public function getRouteName();
 }

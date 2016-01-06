@@ -17,7 +17,6 @@ use Sylius\Behat\Context\FeatureContext;
 use Sylius\Component\Addressing\Model\CountryInterface;
 use Sylius\Component\Addressing\Model\ZoneInterface;
 use Sylius\Component\Addressing\Model\ZoneMemberCountry;
-use Sylius\Component\Addressing\Model\ZoneMemberInterface;
 use Sylius\Component\Channel\Model\ChannelInterface;
 use Sylius\Component\Core\Model\Channel;
 use Sylius\Component\Core\Model\CustomerInterface;
@@ -27,11 +26,6 @@ use Sylius\Component\Currency\Model\CurrencyInterface;
 use Sylius\Component\Payment\Model\PaymentMethodInterface;
 use Sylius\Component\Product\Model\ProductInterface;
 use Sylius\Component\Shipping\Calculator\DefaultCalculators;
-use Symfony\Cmf\Component\Routing\ChainRouterInterface;
-use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
-use Symfony\Component\Security\Core\SecurityContextInterface;
-use Symfony\Component\Security\Csrf\TokenStorage\TokenStorageInterface;
-
 
 /**
  * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
@@ -156,9 +150,9 @@ class CheckoutContext extends FeatureContext implements SnippetAcceptingContext
         $paymentMethod = $this->getService('sylius.factory.payment_method')->createNew();
         $paymentMethod->setCode('PM1');
         $paymentMethod->setGateway('offline');
-        $paymentMethod->setEnabled(true);
         $paymentMethod->setName('Offline');
         $paymentMethod->setDescription('Offline payment method');
+        $paymentMethod->setFeeCalculatorConfiguration(array('amount' => 10));
 
         /** @var ChannelInterface $channel */
         $channel = $this->clipboard->getCurrentObject('channel');
@@ -215,17 +209,24 @@ class CheckoutContext extends FeatureContext implements SnippetAcceptingContext
         $this->flushEntityManager();
 
         $checkoutAddressingPage = $this->getPage('Checkout\CheckoutAddressingStep')->open();
-        $checkoutAddressingPage->fillField('First name', 'John');
-        $checkoutAddressingPage->fillField('Last name', 'Doe');
-        $checkoutAddressingPage->selectFieldOption('Country', 'United States');
-        $checkoutAddressingPage->fillField('Street', '0635 Myron Hollow Apt. 711');
-        $checkoutAddressingPage->fillField('City', 'North Bridget');
-        $checkoutAddressingPage->fillField('Postcode', '93-554');
-        $checkoutAddressingPage->fillField('Phone number', '321123456');
+        $checkoutAddressingPage->fillAddressingDetails(
+            'John',
+            'Doe',
+            'United States',
+            '0635 Myron Hollow Apt. 711',
+            'North Bridget',
+            '93-554',
+            '321123456'
+        );
         $checkoutAddressingPage->pressButton('Continue');
+
         $checkoutShippingPage = $this->getPage('Checkout\CheckoutShippingStep');
         $checkoutShippingPage->pressRadio('DHL');
         $checkoutShippingPage->pressButton('Continue');
+
+        $checkoutPaymentPage = $this->getPage('Checkout\CheckoutPaymentStep');
+        $checkoutPaymentPage->pressRadio('Offline');
+        $checkoutPaymentPage->pressButton('Continue');
     }
 
     /**
@@ -233,7 +234,8 @@ class CheckoutContext extends FeatureContext implements SnippetAcceptingContext
      */
     public function iConfirmMyOrder()
     {
-        throw new PendingException();
+        $checkoutFinalizePage = $this->getPage('Checkout\CheckoutFinalizeStep')->open();
+        $checkoutFinalizePage->clickLink('Place order');
     }
 
     /**

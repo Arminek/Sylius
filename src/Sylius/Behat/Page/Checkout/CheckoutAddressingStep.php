@@ -11,25 +11,36 @@
 
 namespace Sylius\Behat\Page\Checkout;
 
-use SensioLabs\Behat\PageObjectExtension\PageObject\Page;
+use Sylius\Behat\Page\SymfonyPage;
 
 /**
  * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
  */
-class CheckoutAddressingStep extends Page
+class CheckoutAddressingStep extends SymfonyPage
 {
     /**
-     * @var string
-     */
-    protected $path = '/checkout/addressing';
-
-    /**
-     * @param array $urlParameters
-     *
      * @return string
      */
-    protected function getUrl(array $urlParameters = array())
+    public function getRouteName()
     {
-        return ;
+        return 'sylius_checkout_addressing';
+    }
+
+    public function fillAddressingDetails(
+        $firstName,
+        $lastName,
+        $country,
+        $street,
+        $city,
+        $postcode,
+        $phoneNumber
+    ) {
+        $this->fillField('First name', $firstName);
+        $this->fillField('Last name', $lastName);
+        $this->selectFieldOption('Country', $country);
+        $this->fillField('Street', $street);
+        $this->fillField('City', $city);
+        $this->fillField('Postcode', $postcode);
+        $this->fillField('Phone number', $phoneNumber);
     }
 }

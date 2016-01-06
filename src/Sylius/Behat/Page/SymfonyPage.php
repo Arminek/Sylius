@@ -19,13 +19,8 @@ use Symfony\Cmf\Component\Routing\ChainRouterInterface;
 /**
  * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
  */
-class RootPage extends Page
+abstract class SymfonyPage extends Page
 {
-    /**
-     * @var string
-     */
-    protected $routeName = null;
-
     /**
      * @var ChainRouterInterface
      */
@@ -45,14 +40,25 @@ class RootPage extends Page
     }
 
     /**
+     * @param string $locator
+     */
+    public function pressRadio($locator)
+    {
+        $radio = $this->findField($locator);
+        $this->fillField($radio->getAttribute('name'), $radio->getAttribute('value'));
+    }
+
+    /**
      * @param array $urlParameters
      *
      * @return string
      */
     protected function getUrl(array $urlParameters = array())
     {
-        if (null !== $this->routeName) {
-            return $this->router->generate($this->routeName, $urlParameters);
+        if (null !== $this->getRouteName()) {
+            return $this->router->generate($this->getRouteName(), $urlParameters, true);
         }
     }
+
+    abstract public function getRouteName();
 }
