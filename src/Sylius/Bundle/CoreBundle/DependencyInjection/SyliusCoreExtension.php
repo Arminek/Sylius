@@ -79,6 +79,10 @@ class SyliusCoreExtension extends AbstractResourceExtension implements PrependEx
             'email.xml',
         );
 
+        if ('test' === $container->getParameter('kernel.environment')) {
+            array_push($configFiles, 'test_services.xml');
+        }
+
         foreach ($configFiles as $configFile) {
             $loader->load($configFile);
         }
@@ -87,10 +91,6 @@ class SyliusCoreExtension extends AbstractResourceExtension implements PrependEx
 
         $definition = $container->findDefinition('sylius.context.currency');
         $definition->replaceArgument(0, new Reference($config['currency_storage']));
-
-        if ('test' === $container->getParameter('kernel.environment')) {
-            $this->loadServiceDefinitions($container, 'test_services.xml');
-        }
     }
 
     /**
