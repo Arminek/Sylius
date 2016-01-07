@@ -397,6 +397,17 @@ default:
             filters:
                 tags: "@security"
 
+        ui:
+            contexts:
+                - Behat\MinkExtension\Context\MinkContext
+                - Sylius\Behat\Context\Ui\CheckoutContext
+                - Sylius\Behat\Context\Setup\ChannelContext
+                - Sylius\Behat\Context\Setup\ProductContext
+                - Sylius\Behat\Context\Setup\SecurityContext
+                - Sylius\Behat\Context\Setup\UserContext
+            filters:
+                tags: "@ui"
+
     extensions:
         Lakion\Behat\MinkDebugExtension:
             directory: etc/build

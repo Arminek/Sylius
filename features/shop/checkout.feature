@@ -1,4 +1,4 @@
-@new_checkout
+@ui
 Feature: Checkout with offline payment
   In order to pay with cash or by external means
   As a Customer

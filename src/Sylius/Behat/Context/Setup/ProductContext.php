@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Sylius\Behat\Context\Shop;
+namespace Sylius\Behat\Context\Setup;
 
 use Sylius\Behat\Context\FeatureContext;
 
