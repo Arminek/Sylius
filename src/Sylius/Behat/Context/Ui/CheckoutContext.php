@@ -11,8 +11,6 @@
 
 namespace Sylius\Behat\Context\Ui;
 
-use Behat\Behat\Tester\Exception\PendingException;
-use Behat\Behat\Context\SnippetAcceptingContext;
 use Sylius\Behat\Context\FeatureContext;
 use Sylius\Component\Core\Model\ShippingMethod;
 use Sylius\Component\Product\Model\ProductInterface;
@@ -21,7 +19,7 @@ use Sylius\Component\Shipping\Calculator\DefaultCalculators;
 /**
  * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
  */
-class CheckoutContext extends FeatureContext implements SnippetAcceptingContext
+class CheckoutContext extends FeatureContext
 {
     /**
      * @Given I added product :name to cart
@@ -73,10 +71,12 @@ class CheckoutContext extends FeatureContext implements SnippetAcceptingContext
         $checkoutAddressingPage->pressButton('Continue');
 
         $checkoutShippingPage = $this->getPage('Checkout\CheckoutShippingStep');
+        $checkoutShippingPage->assertRoute();
         $checkoutShippingPage->pressRadio('DHL');
         $checkoutShippingPage->pressButton('Continue');
 
         $checkoutPaymentPage = $this->getPage('Checkout\CheckoutPaymentStep');
+        $checkoutPaymentPage->assertRoute();
         $checkoutPaymentPage->pressRadio('Offline');
         $checkoutPaymentPage->pressButton('Continue');
     }
@@ -86,7 +86,8 @@ class CheckoutContext extends FeatureContext implements SnippetAcceptingContext
      */
     public function iConfirmMyOrder()
     {
-        $checkoutFinalizePage = $this->getPage('Checkout\CheckoutFinalizeStep')->open();
+        $checkoutFinalizePage = $this->getPage('Checkout\CheckoutFinalizeStep');
+        $checkoutFinalizePage->assertRoute();
         $checkoutFinalizePage->clickLink('Place order');
     }
 
@@ -95,6 +96,10 @@ class CheckoutContext extends FeatureContext implements SnippetAcceptingContext
      */
     public function iShouldSeeSeeTheThankYouPage()
     {
-        throw new PendingException();
+        $user = $this->clipboard->getCurrentObject('User');
+        $order = $this->getService('sylius.repository.order')->findOneBy(array('customer' => $user->getCustomer()));
+        $thankYouPage = $this->getPage('Checkout\CheckoutThankYouPage');
+        $thankYouPage->assertRoute(array('id' => $order->getId()));
+        $this->assertSession()->pageTextContains(sprintf('Thank you %s', $user->getEmail()));
     }
 }

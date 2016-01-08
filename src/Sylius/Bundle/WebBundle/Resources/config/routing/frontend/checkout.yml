@@ -36,3 +36,8 @@ sylius_checkout_payment:
 sylius_checkout_finalize:
     path: /finalize
     defaults: { _controller: sylius.controller.process:displayAction, scenarioAlias: 'sylius_checkout', 'stepName': 'finalize' }
+
+sylius_checkout_thank_you_page:
+    path: /{id}/thank-you
+    methods: [GET]
+    defaults: { _controller: sylius.controller.checkout:thankYouAction }

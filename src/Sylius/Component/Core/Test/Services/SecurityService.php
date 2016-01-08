@@ -12,7 +12,10 @@
 namespace Sylius\Component\Core\Test\Services;
 
 use Behat\Mink\Session;
+use Sylius\Bundle\UserBundle\Event\UserEvent;
+use Sylius\Bundle\UserBundle\UserEvents;
 use Sylius\Component\User\Repository\UserRepositoryInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 
@@ -51,7 +54,7 @@ class SecurityService
     {
         $user = $this->userRepository->findOneBy(array('username' => $email));
 
-        $token = new UsernamePasswordToken($user->getEmail(), $user->getPassword(), $providerKey, $user->getRoles());
+        $token = new UsernamePasswordToken($user, $user->getPassword(), $providerKey, $user->getRoles());
 
         $this->session->set('_security_user', serialize($token));
         $this->session->save();

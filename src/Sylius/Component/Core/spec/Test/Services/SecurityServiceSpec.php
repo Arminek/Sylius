@@ -13,8 +13,11 @@ namespace spec\Sylius\Component\Core\Test\Services;
 
 use Behat\Mink\Session;
 use PhpSpec\ObjectBehavior;
+use Sylius\Bundle\UserBundle\Event\UserEvent;
+use Sylius\Bundle\UserBundle\UserEvents;
 use Sylius\Component\User\Model\UserInterface;
 use Sylius\Component\User\Repository\UserRepositoryInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
@@ -45,11 +48,10 @@ class SecurityServiceSpec extends ObjectBehavior
         $userRoles = ['ROLE_USER'];
         $userRepository->findOneBy(array('username' => 'sylius@example.com'))->willReturn($user);
         $user->getRoles()->willReturn($userRoles);
-        $user->getEmail()->willReturn('sylius@example.com');
         $user->getPassword()->willReturn('xyz');
 
         /** @var TokenStorageInterface $tokenStorage */
-        $token = new UsernamePasswordToken('sylius@example.com', 'xyz', 'default', $userRoles);
+        $token = new UsernamePasswordToken($user, 'xyz', 'default', $userRoles);
         $session->set('_security_user', serialize($token))->shouldBeCalled();
         $session->save()->shouldBeCalled();
         $session->getName()->willReturn('MOCKEDSID');

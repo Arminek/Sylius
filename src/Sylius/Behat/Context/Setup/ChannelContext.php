@@ -101,7 +101,7 @@ class ChannelContext extends FeatureContext
         /** @var PaymentMethodInterface $paymentMethod */
         $paymentMethod = $this->getService('sylius.factory.payment_method')->createNew();
         $paymentMethod->setCode('PM1');
-        $paymentMethod->setGateway('offline');
+        $paymentMethod->setGateway('dummy');
         $paymentMethod->setName('Offline');
         $paymentMethod->setDescription('Offline payment method');
         $paymentMethod->setFeeCalculatorConfiguration(array('amount' => 10));

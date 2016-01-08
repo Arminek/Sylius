@@ -12,6 +12,7 @@
 namespace Sylius\Behat\Page;
 
 use Behat\Mink\Session;
+use SensioLabs\Behat\PageObjectExtension\PageObject\Exception\ElementNotFoundException;
 use SensioLabs\Behat\PageObjectExtension\PageObject\Factory;
 use SensioLabs\Behat\PageObjectExtension\PageObject\Page;
 use Symfony\Cmf\Component\Routing\ChainRouterInterface;
@@ -45,7 +46,20 @@ abstract class SymfonyPage extends Page
     public function pressRadio($locator)
     {
         $radio = $this->findField($locator);
+
+        if (null === $radio) {
+            throw new ElementNotFoundException(sprintf('"%s" element is not present on the page', $locator));
+        }
+
         $this->fillField($radio->getAttribute('name'), $radio->getAttribute('value'));
+    }
+
+    /**
+     * @param array $urlParameters
+     */
+    public function assertRoute(array $urlParameters = array())
+    {
+        $this->verify($urlParameters);
     }
 
     /**

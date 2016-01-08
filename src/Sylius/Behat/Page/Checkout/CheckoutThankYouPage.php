@@ -11,10 +11,15 @@
 
 namespace Sylius\Behat\Page\Checkout;
 
+use Sylius\Behat\Page\SymfonyPage;
+
 /**
  * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
  */
-class ThankYouPage
+class CheckoutThankYouPage extends SymfonyPage
 {
-
+    public function getRouteName()
+    {
+        return 'sylius_checkout_thank_you_page';
+    }
 }
