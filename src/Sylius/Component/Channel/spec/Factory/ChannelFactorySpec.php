@@ -13,15 +13,17 @@ namespace spec\Sylius\Component\Channel\Factory;
  
 use PhpSpec\ObjectBehavior;
 use Sylius\Component\Channel\Model\ChannelInterface;
+use Sylius\Component\Resource\Factory\FactoryInterface;
 
 /**
  * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
  */
 class ChannelFactorySpec extends ObjectBehavior
 {
-    function let()
-    {
-        $this->beConstructedWith('Sylius\Component\Channel\Model\Channel');
+    function let(
+        FactoryInterface $defaultFactory
+    ) {
+        $this->beConstructedWith($defaultFactory);
     }
 
     function it_is_initializable()
@@ -34,46 +36,19 @@ class ChannelFactorySpec extends ObjectBehavior
         $this->shouldImplement('Sylius\Component\Channel\Factory\ChannelFactoryInterface');
     }
 
-    function it_is_a_factory()
+    function it_creates_channel_with_name($defaultFactory, ChannelInterface $channel)
     {
-        $this->shouldHaveType('Sylius\Component\Resource\Factory\Factory');
+        $defaultFactory->createNew()->willReturn($channel);
+
+        $channel->setName('United States Webstore')->shouldBeCalled();
+
+        $this->createNamed('United States Webstore')->shouldReturn($channel);
     }
 
-    function it_create_named(ChannelInterface $channel)
+    function it_creates_empty_channel($defaultFactory, ChannelInterface $channel)
     {
-        $channel->getDescription()->willReturn(null);
-        $channel->getCode()->willReturn(null);
-        $channel->getName()->willReturn('United States Webstore');
-        $channel->getId()->willReturn(null);
-        $channel->getUrl()->willReturn(null);
-        $channel->isEnabled()->willReturn(true);
-        $channel->getColor()->willReturn(null);
-        $channel->getUpdatedAt()->willReturn(null);
+        $defaultFactory->createNew()->willReturn($channel);
 
-        $this->createNamed('United States Webstore')->shouldBeSameAs($channel);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getMatchers()
-    {
-        return [
-            'beSameAs' => function($subject, $key) {
-                if (!$subject instanceof ChannelInterface || !$key instanceof ChannelInterface) {
-                    return false;
-                }
-
-                return ($subject->getCode() === $key->getCode()
-                    && $subject->getColor() === $key->getColor()
-                    && $subject->getName() === $key->getName()
-                    && $subject->getId() === $key->getId()
-                    && $subject->getUrl() === $key->getUrl()
-                    && $subject->getDescription() === $key->getDescription()
-                    && $subject->isEnabled() === $key->isEnabled()
-                    && $subject->getUpdatedAt() === $key->getUpdatedAt()
-                );
-            }
-        ];
+        $this->createNew()->shouldReturn($channel);
     }
 }

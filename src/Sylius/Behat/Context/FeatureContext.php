@@ -58,7 +58,7 @@ class FeatureContext extends PageObjectContext implements MinkAwareContext, Kern
     /**
      * @var EntityManagerInterface
      */
-    private $entityManager = null;
+    protected $entityManager;
 
     /**
      * {@inheritdoc}
@@ -86,9 +86,8 @@ class FeatureContext extends PageObjectContext implements MinkAwareContext, Kern
 
     /**
      * @BeforeScenario
-     * @param BeforeScenarioScope $scope
      */
-    public function purgeDatabase(BeforeScenarioScope $scope)
+    public function purgeDatabase()
     {
         if (null === $this->entityManager) {
             $this->entityManager = $this->getService('doctrine.orm.entity_manager');
@@ -112,13 +111,12 @@ class FeatureContext extends PageObjectContext implements MinkAwareContext, Kern
     /**
      * @BeforeScenario
      */
-    public function setEntityManager(BeforeScenarioScope $scope)
+    public function setEntityManager()
     {
         $this->entityManager = $this->getService('doctrine.orm.entity_manager');
     }
 
     /**
-     *
      * @param string|null $name name of the session OR active session will be used
      *
      * @return Session
@@ -168,23 +166,6 @@ class FeatureContext extends PageObjectContext implements MinkAwareContext, Kern
         }
 
         return $this->container->get($id);
-    }
-
-    /**
-     * @param $object
-     */
-    protected function persistObject($object)
-    {
-        if (!is_object($object)) {
-            throw new \InvalidArgumentException(sprintf('This %s is not an object', $object));
-        }
-
-        $this->entityManager->persist($object);
-    }
-
-    protected function flushEntityManager()
-    {
-        $this->entityManager->flush();
     }
 
     /**

@@ -12,11 +12,12 @@
 namespace Sylius\Component\Channel\Factory;
 
 use Sylius\Component\Channel\Model\ChannelInterface;
+use Sylius\Component\Resource\Factory\FactoryInterface;
 
 /**
  * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
  */
-interface ChannelFactoryInterface
+interface ChannelFactoryInterface extends FactoryInterface
 {
     /**
      * @param string $name

@@ -35,6 +35,9 @@ class ProductShowPage extends SymfonyPage
         return $this;
     }
 
+    /**
+     * @return null
+     */
     public function getRouteName()
     {
         return null;

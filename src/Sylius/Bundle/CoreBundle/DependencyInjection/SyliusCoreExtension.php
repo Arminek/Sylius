@@ -80,7 +80,7 @@ class SyliusCoreExtension extends AbstractResourceExtension implements PrependEx
         );
 
         if ('test' === $container->getParameter('kernel.environment')) {
-            array_push($configFiles, 'test_services.xml');
+            $configFiles[] = 'test_services.xml';
         }
 
         foreach ($configFiles as $configFile) {

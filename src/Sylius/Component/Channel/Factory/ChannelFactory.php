@@ -11,19 +11,37 @@
  
 namespace Sylius\Component\Channel\Factory;
 
-use Sylius\Component\Resource\Factory\Factory;
+use Sylius\Component\Resource\Factory\FactoryInterface;
 
 /**
  * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
  */
-class ChannelFactory extends Factory implements ChannelFactoryInterface
+class ChannelFactory implements ChannelFactoryInterface
 {
+    private $defaultFactory;
+
+    /**
+     * {@inheritdoc}
+     */
+    public function __construct(FactoryInterface $defaultFactory)
+    {
+        $this->defaultFactory = $defaultFactory;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createNew()
+    {
+        return $this->defaultFactory->createNew();
+    }
+
     /**
      * {@inheritdoc}
      */
     public function createNamed($name)
     {
-        $channel = $this->createNew();
+        $channel = $this->defaultFactory->createNew();
         $channel->setName($name);
 
         return $channel;

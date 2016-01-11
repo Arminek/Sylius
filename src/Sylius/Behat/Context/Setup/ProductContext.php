@@ -32,7 +32,7 @@ class ProductContext extends FeatureContext
         $channel = $this->clipboard->getCurrentObject('channel');
         $product->addChannel($channel);
 
-        $this->persistObject($product);
-        $this->flushEntityManager();
+        $this->entityManager->persist($product);
+        $this->entityManager->flush();
     }
 }

@@ -42,6 +42,8 @@ abstract class SymfonyPage extends Page
 
     /**
      * @param string $locator
+     *
+     * @throws ElementNotFoundException
      */
     public function pressRadio($locator)
     {

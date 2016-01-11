@@ -54,7 +54,6 @@ class ChannelContext extends FeatureContext
         /** @var ZoneMemberCountry $zoneMember */
         $zoneMember = $this->getService('sylius.factory.zone_member_country')->createNew();
         $zoneMember->setCountry($country);
-        $zoneMember->setBelongsTo($zone);
 
         $zone->addMember($zoneMember);
 
@@ -63,8 +62,8 @@ class ChannelContext extends FeatureContext
         $this->clipboard->setCurrentObject($zoneMember);
         $this->clipboard->setCurrentObject($zone);
 
-        $this->persistObject($channel);
-        $this->flushEntityManager();
+        $this->entityManager->persist($channel);
+        $this->entityManager->flush();
     }
 
     /**
@@ -78,19 +77,17 @@ class ChannelContext extends FeatureContext
         $currency = $this->getService('sylius.factory.currency')->createNew();
         $currency->setCode('USD');
         $currency->setExchangeRate(1.3);
-        $currency->enable();
 
         $currency2 = $this->getService('sylius.factory.currency')->createNew();
         $currency2->setCode('EUR');
         $currency2->setExchangeRate(1.5);
-        $currency2->enable();
 
         $channel->setDefaultCurrency($currency);
 
-        $this->persistObject($currency);
-        $this->persistObject($channel);
-        $this->persistObject($currency2);
-        $this->flushEntityManager();
+        $this->entityManager->persist($currency);
+        $this->entityManager->persist($channel);
+        $this->entityManager->persist($currency2);
+        $this->entityManager->flush();
     }
 
     /**
@@ -110,8 +107,8 @@ class ChannelContext extends FeatureContext
         $channel = $this->clipboard->getCurrentObject('channel');
         $channel->addPaymentMethod($paymentMethod);
 
-        $this->persistObject($channel);
-        $this->persistObject($paymentMethod);
-        $this->flushEntityManager();
+        $this->entityManager->persist($channel);
+        $this->entityManager->persist($paymentMethod);
+        $this->entityManager->flush();
     }
 }

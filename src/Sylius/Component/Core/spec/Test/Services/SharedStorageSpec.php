@@ -34,7 +34,7 @@ class SharedStorageSpec extends ObjectBehavior
         $this->getCurrentObject($product)->shouldReturn($product);
     }
 
-    function it_return_latest_added_object(ChannelInterface $channel, ProductInterface $product)
+    function it_returns_latest_added_object(ChannelInterface $channel, ProductInterface $product)
     {
         $this->setCurrentObject($channel);
         $this->setCurrentObject($product);

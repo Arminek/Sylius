@@ -38,7 +38,7 @@ class UserContext extends FeatureContext
 
         $this->clipboard->setCurrentObject($user);
 
-        $this->persistObject($user);
-        $this->flushEntityManager();
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
     }
 }

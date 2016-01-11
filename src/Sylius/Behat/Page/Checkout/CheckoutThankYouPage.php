@@ -18,6 +18,9 @@ use Sylius\Behat\Page\SymfonyPage;
  */
 class CheckoutThankYouPage extends SymfonyPage
 {
+    /**
+     * @return string
+     */
     public function getRouteName()
     {
         return 'sylius_checkout_thank_you_page';

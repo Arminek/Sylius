@@ -52,22 +52,23 @@ class CheckoutContext extends FeatureContext
         $shippingMethod->setCalculator(DefaultCalculators::PER_ITEM_RATE);
         $shippingMethod->setZone($zone);
 
-        $this->persistObject($shippingMethod);
-        $this->persistObject($zoneMember);
-        $this->persistObject($country);
-        $this->persistObject($zone);
-        $this->flushEntityManager();
+        $this->entityManager->persist($shippingMethod);
+        $this->entityManager->persist($zoneMember);
+        $this->entityManager->persist($country);
+        $this->entityManager->persist($zone);
+        $this->entityManager->flush();
 
         $checkoutAddressingPage = $this->getPage('Checkout\CheckoutAddressingStep')->open();
-        $checkoutAddressingPage->fillAddressingDetails(
-            'John',
-            'Doe',
-            'United States',
-            '0635 Myron Hollow Apt. 711',
-            'North Bridget',
-            '93-554',
-            '321123456'
+        $addressingDetails = array(
+            'firstName' => 'John',
+            'lastName' => 'Doe',
+            'country' => 'United States',
+            'street' => '0635 Myron Hollow Apt. 711',
+            'city' => 'North Bridget',
+            'postcode' => '93-554',
+            'phoneNumber' => '321123456'
         );
+        $checkoutAddressingPage->fillAddressingDetails($addressingDetails);
         $checkoutAddressingPage->pressButton('Continue');
 
         $checkoutShippingPage = $this->getPage('Checkout\CheckoutShippingStep');

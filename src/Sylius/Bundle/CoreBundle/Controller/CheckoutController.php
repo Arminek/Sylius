@@ -193,7 +193,7 @@ class CheckoutController extends FOSRestController
     }
 
     /**
-     * @param $id
+     * @param int $id
      *
      * @return Response
      */

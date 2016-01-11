@@ -63,7 +63,7 @@ class SyliusPageObjectExtension implements TestworkExtension
         $appContainer = clone $kernel->getContainer();
         $router = $appContainer->get('router');
 
-        $definition = new Definition('Sylius\Behat\Factory\PageObjectFactory');
+        $definition = new Definition('Sylius\Behat\Extension\Factory\PageObjectFactory');
         $definition->setArguments(array($classNameResolver, $defaultFactory, new Reference('mink'), $router, '%mink.parameters%'));
         $container->setDefinition('sylius.page_object.factory', $definition);
     }

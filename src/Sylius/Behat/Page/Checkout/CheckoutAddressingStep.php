@@ -26,21 +26,19 @@ class CheckoutAddressingStep extends SymfonyPage
         return 'sylius_checkout_addressing';
     }
 
-    public function fillAddressingDetails(
-        $firstName,
-        $lastName,
-        $country,
-        $street,
-        $city,
-        $postcode,
-        $phoneNumber
-    ) {
-        $this->fillField('First name', $firstName);
-        $this->fillField('Last name', $lastName);
-        $this->selectFieldOption('Country', $country);
-        $this->fillField('Street', $street);
-        $this->fillField('City', $city);
-        $this->fillField('Postcode', $postcode);
-        $this->fillField('Phone number', $phoneNumber);
+    /**
+     * @param array $addressingDetails
+     *
+     * @throws \Behat\Mink\Exception\ElementNotFoundException
+     */
+    public function fillAddressingDetails(array $addressingDetails)
+    {
+        $this->fillField('First name', $addressingDetails['firstName']);
+        $this->fillField('Last name', $addressingDetails['lastName']);
+        $this->selectFieldOption('Country', $addressingDetails['country']);
+        $this->fillField('Street', $addressingDetails['street']);
+        $this->fillField('City', $addressingDetails['city']);
+        $this->fillField('Postcode', $addressingDetails['postcode']);
+        $this->fillField('Phone number', $addressingDetails['phoneNumber']);
     }
 }

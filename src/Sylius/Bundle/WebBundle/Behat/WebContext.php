@@ -452,7 +452,7 @@ class WebContext extends BaseWebContext implements SnippetAcceptingContext
     public function iAmOnTheProductPage($name)
     {
         $product = $this->findOneBy('product', array('name' => $name));
-        
+
         $this->getSession()->visit($this->generatePageUrl($product));
     }
 

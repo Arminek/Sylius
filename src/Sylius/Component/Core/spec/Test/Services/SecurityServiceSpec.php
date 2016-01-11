@@ -39,7 +39,7 @@ class SecurityServiceSpec extends ObjectBehavior
         $this->shouldHaveType('Sylius\Component\Core\Test\Services\SecurityService');
     }
 
-    function it_log_user_in(
+    function it_logs_user_in(
         $userRepository,
         $session,
         UserInterface $user,

@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Sylius\Behat\Factory;
+namespace Sylius\Behat\Extension\Factory;
 
 use Behat\Mink\Mink;
 use SensioLabs\Behat\PageObjectExtension\PageObject\Element;
@@ -49,7 +49,13 @@ class PageObjectFactory implements Factory
      */
     private $pageParameters = array();
 
-
+    /**
+     * @param ClassNameResolver $classNameResolver
+     * @param Factory $defaultFactory
+     * @param Mink $mink
+     * @param ChainRouterInterface $router
+     * @param array $pageParameters
+     */
     public function __construct(
         ClassNameResolver $classNameResolver,
         Factory $defaultFactory,

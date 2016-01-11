@@ -18,6 +18,9 @@ use Sylius\Behat\Page\SymfonyPage;
  */
 class CheckoutShippingStep extends SymfonyPage
 {
+    /**
+     * @return string
+     */
     public function getRouteName()
     {
         return 'sylius_checkout_shipping';
