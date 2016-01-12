@@ -41,4 +41,13 @@ class UserContext extends FeatureContext
         $this->entityManager->persist($user);
         $this->entityManager->flush();
     }
+
+    /**
+     * @Given I am logged in as :email
+     */
+    public function iAmLoggedInAs($email)
+    {
+        $this->getPage('Shop\HomePage')->open();
+        $this->getService('sylius.behat.security')->logIn($email, 'main', $this->getSession());
+    }
 }

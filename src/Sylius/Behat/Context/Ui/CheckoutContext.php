@@ -22,21 +22,21 @@ use Sylius\Component\Shipping\Calculator\DefaultCalculators;
 class CheckoutContext extends FeatureContext
 {
     /**
-     * @Given I added product :name to cart
+     * @Given I added product :productName to the cart
      */
-    public function iAddedProductToCart($name)
+    public function iAddedProductToCart($productName)
     {
         /** @var ProductInterface $product */
-        $product = $this->getService('sylius.repository.product')->findOneBy(array('name' => $name));
+        $product = $this->getService('sylius.repository.product')->findOneBy(array('name' => $productName));
 
         $productShowPage = $this->getPage('Product\ProductShowPage')->openSpecificProductPage($product);
         $productShowPage->pressButton('Add to cart');
     }
 
     /**
-     * @When I proceed selecting offline payment method
+     * @When I proceed selecting :paymentMethodName payment method
      */
-    public function iProceedSelectingOfflinePaymentMethod()
+    public function iProceedSelectingPaymentMethod($paymentMethodName)
     {
         $zone = $this->clipboard->getCurrentObject('zone');
         $country = $this->clipboard->getCurrentObject('country');
@@ -78,7 +78,7 @@ class CheckoutContext extends FeatureContext
 
         $checkoutPaymentPage = $this->getPage('Checkout\CheckoutPaymentStep');
         $checkoutPaymentPage->assertRoute();
-        $checkoutPaymentPage->pressRadio('Offline');
+        $checkoutPaymentPage->pressRadio($paymentMethodName);
         $checkoutPaymentPage->pressButton('Continue');
     }
 

@@ -67,15 +67,15 @@ class ChannelContext extends FeatureContext
     }
 
     /**
-     * @Given default currency is USD
+     * @Given default currency is :currencyCode
      */
-    public function defaultCurrencyIsUsd()
+    public function defaultCurrencyIs($currencyCode)
     {
         /** @var ChannelInterface $channel */
         $channel = $this->clipboard->getCurrentObject('channel');
         /** @var CurrencyInterface $currency */
         $currency = $this->getService('sylius.factory.currency')->createNew();
-        $currency->setCode('USD');
+        $currency->setCode($currencyCode);
         $currency->setExchangeRate(1.3);
 
         $currency2 = $this->getService('sylius.factory.currency')->createNew();
@@ -91,15 +91,15 @@ class ChannelContext extends FeatureContext
     }
 
     /**
-     * @Given store allows paying offline
+     * @Given store allows paying :paymentMethodName
      */
-    public function storeAllowsPayingOffline()
+    public function storeAllowsPaying($paymentMethodName)
     {
         /** @var PaymentMethodInterface $paymentMethod */
         $paymentMethod = $this->getService('sylius.factory.payment_method')->createNew();
         $paymentMethod->setCode('PM1');
-        $paymentMethod->setGateway('dummy');
-        $paymentMethod->setName('Offline');
+        $paymentMethod->setGateway(strtolower(str_replace(' ', '_', $paymentMethodName)));
+        $paymentMethod->setName($paymentMethodName);
         $paymentMethod->setDescription('Offline payment method');
         $paymentMethod->setFeeCalculatorConfiguration(array('amount' => 10));
 

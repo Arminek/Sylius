@@ -403,7 +403,6 @@ default:
                 - Sylius\Behat\Context\Ui\CheckoutContext
                 - Sylius\Behat\Context\Setup\ChannelContext
                 - Sylius\Behat\Context\Setup\ProductContext
-                - Sylius\Behat\Context\Setup\SecurityContext
                 - Sylius\Behat\Context\Setup\UserContext
             filters:
                 tags: "@ui"

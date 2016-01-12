@@ -27,7 +27,7 @@ class ProductShowPage extends SymfonyPage
      */
     public function openSpecificProductPage(ProductInterface $product)
     {
-        $url = $this->router->generate($product);
+        $url = $this->router->generate($product, array(), true);
 
         $this->getSession()->visit($url);
         $this->verifyResponse();
