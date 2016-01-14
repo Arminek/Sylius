@@ -93,14 +93,53 @@ class CheckoutContext extends FeatureContext
     }
 
     /**
-     * @Then I should see see the thank you page
+     * @Then I should see the thank you page
      */
-    public function iShouldSeeSeeTheThankYouPage()
+    public function iShouldSeeTheThankYouPage()
     {
         $user = $this->clipboard->getCurrentObject('User');
         $order = $this->getService('sylius.repository.order')->findOneBy(array('customer' => $user->getCustomer()));
         $thankYouPage = $this->getPage('Checkout\CheckoutThankYouPage');
         $thankYouPage->assertRoute(array('id' => $order->getId()));
         $this->assertSession()->pageTextContains(sprintf('Thank you %s', $user->getEmail()));
+    }
+
+    /**
+     * @Then I should be redirected to :arg1 page
+     */
+    public function iShouldBeRedirectedToPage($arg1)
+    {
+        $this->getPage('External\PaypalPage')->assertRoute();
+    }
+
+    /**
+     * @When I sign in to PayPal and pay successfully
+     */
+    public function iSignInToPaypalAndPaySuccessfully()
+    {
+        $paypalPage = $this->getPage('External\PaypalPage');
+        $paypalPage->logIn('mike.ehrmantraut@gmail.com', 'goodman123');
+        $paypalPage->pay();
+    }
+
+    /**
+     * @Then I should be redirected back to the thank you page
+     */
+    public function iShouldBeRedirectedBackToTheThankYouPage()
+    {
+        $user = $this->clipboard->getCurrentObject('User');
+        $order = $this->getService('sylius.repository.order')->findOneBy(array('customer' => $user->getCustomer()));
+        $thankYouPage = $this->getPage('Checkout\CheckoutThankYouPage');
+        $thankYouPage->waitForPaypalRedirect();
+        $thankYouPage->assertRoute(array('id' => $order->getId()));
+    }
+
+    /**
+     * @When I cancel my PayPal payment
+     */
+    public function iCancelMyPaypalPayment()
+    {
+        $paypalPage = $this->getPage('External\PaypalPage');
+        $paypalPage->cancel();
     }
 }

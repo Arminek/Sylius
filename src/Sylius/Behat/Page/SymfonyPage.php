@@ -72,8 +72,23 @@ abstract class SymfonyPage extends Page
     protected function getUrl(array $urlParameters = array())
     {
         if (null !== $this->getRouteName()) {
-            return $this->router->generate($this->getRouteName(), $urlParameters, true);
+            $path = $this->router->generate($this->getRouteName(), $urlParameters);
+            $url = $this->makePathAbsoluteWithBehatParameter($path);
+
+            return $url;
         }
+    }
+
+    /**
+     * @param string $path
+     *
+     * @return string
+     */
+    protected function makePathAbsoluteWithBehatParameter($path)
+    {
+        $baseUrl = rtrim($this->getParameter('base_url'), '/').'/';
+
+        return 0 !== strpos($path, 'http') ? $baseUrl.ltrim($path, '/') : $path;
     }
 
     abstract public function getRouteName();

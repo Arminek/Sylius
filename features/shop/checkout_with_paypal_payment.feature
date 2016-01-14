@@ -19,20 +19,22 @@ Feature: Checkout with PayPal Express Checkout
     And I confirm my order
     Then I should be redirected to "PayPal Express Checkout" page
 
+@javascript
   Scenario: Cancelling the payment
     Given I added product "PHP T-Shirt" to the cart
-    And I proceed selecting selecting "PayPal Express Checkout" payment method
-    And I am on the PayPal Express Checkout page
+    And I proceed selecting "PayPal Express Checkout" payment method
+    And I confirm my order
     When I cancel my PayPal payment
     Then I should be redirected back to the order payment page
     And I should see one cancelled payment and new one ready to be paid
 
+@javascript
   Scenario: Successful payment
     Given I added product "PHP T-Shirt" to the cart
-    And I proceed selecting selecting "PayPal Express Checkout" payment method
-    And I am on the PayPal Express Checkout page
+    And I proceed selecting "PayPal Express Checkout" payment method
+    And I confirm my order
     When I sign in to PayPal and pay successfully
-    Then I should be redirected back to the thank you page
+   Then I should be redirected back to the thank you page
 
   Scenario: Payment failed
     Given I added product "PHP T-Shirt" to the cart

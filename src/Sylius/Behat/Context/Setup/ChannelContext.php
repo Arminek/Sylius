@@ -12,7 +12,7 @@
 namespace Sylius\Behat\Context\Setup;
 
 use Sylius\Behat\Context\FeatureContext;
-use Sylius\Component\Channel\Model\ChannelInterface;
+use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Addressing\Model\CountryInterface;
 use Sylius\Component\Currency\Model\CurrencyInterface;
 use Sylius\Component\Payment\Model\PaymentMethodInterface;
@@ -77,16 +77,10 @@ class ChannelContext extends FeatureContext
         $currency = $this->getService('sylius.factory.currency')->createNew();
         $currency->setCode($currencyCode);
         $currency->setExchangeRate(1.3);
-
-        $currency2 = $this->getService('sylius.factory.currency')->createNew();
-        $currency2->setCode('EUR');
-        $currency2->setExchangeRate(1.5);
-
         $channel->setDefaultCurrency($currency);
 
         $this->entityManager->persist($currency);
         $this->entityManager->persist($channel);
-        $this->entityManager->persist($currency2);
         $this->entityManager->flush();
     }
 
@@ -99,6 +93,7 @@ class ChannelContext extends FeatureContext
         $paymentMethod = $this->getService('sylius.factory.payment_method')->createNew();
         $paymentMethod->setCode('PM1');
         $paymentMethod->setGateway(strtolower(str_replace(' ', '_', $paymentMethodName)));
+//        $paymentMethod->setGateway('dummy');
         $paymentMethod->setName($paymentMethodName);
         $paymentMethod->setDescription('Offline payment method');
         $paymentMethod->setFeeCalculatorConfiguration(array('amount' => 10));

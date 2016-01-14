@@ -25,4 +25,11 @@ class CheckoutThankYouPage extends SymfonyPage
     {
         return 'sylius_checkout_thank_you_page';
     }
+
+    public function waitForPaypalRedirect()
+    {
+        $this->waitFor(10, function() {
+            return $this->isOpen();
+        });
+    }
 }
