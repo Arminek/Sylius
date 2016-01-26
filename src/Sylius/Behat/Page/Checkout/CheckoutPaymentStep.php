@@ -25,6 +25,10 @@ class CheckoutPaymentStep extends SymfonyPage
     {
         $radio = $this->getDocument()->findField($paymentMethod);
 
+        if (null === $radio) {
+            throw new \RuntimeException('Payment method not found or it is not visible');
+        }
+
         $this->getDocument()->fillField($radio->getAttribute('name'), $radio->getAttribute('value'));
     }
 

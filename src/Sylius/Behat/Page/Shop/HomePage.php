@@ -21,7 +21,7 @@ class HomePage extends SymfonyPage
     /**
      * {@inheritdoc}
      */
-    protected function getRouteName()
+    public function getRouteName()
     {
         return 'sylius_homepage';
     }

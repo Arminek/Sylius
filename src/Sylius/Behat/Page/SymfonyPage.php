@@ -37,6 +37,14 @@ abstract class SymfonyPage extends Page
     }
 
     /**
+     * @param array $urlParameters
+     */
+    public function verify(array $urlParameters = [])
+    {
+        $this->verifyUrl($urlParameters);
+    }
+
+    /**
      * {@inheritdoc}
      */
     protected function getUrl(array $urlParameters = [])
@@ -72,5 +80,8 @@ abstract class SymfonyPage extends Page
     {
     }
 
+    /**
+     * @return string
+     */
     abstract protected function getRouteName();
 }

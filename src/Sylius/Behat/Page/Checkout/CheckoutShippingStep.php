@@ -25,6 +25,10 @@ class CheckoutShippingStep extends SymfonyPage
     {
         $radio = $this->getDocument()->findField($shippingMethod);
 
+        if (null === $radio) {
+            throw new \RuntimeException('Shipping method not found or it is not visible');
+        }
+
         $this->getDocument()->fillField($radio->getAttribute('name'), $radio->getAttribute('value'));
     }
 

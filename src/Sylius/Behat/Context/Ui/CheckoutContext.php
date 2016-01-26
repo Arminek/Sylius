@@ -18,6 +18,7 @@ use Sylius\Behat\Page\Checkout\CheckoutPaymentStep;
 use Sylius\Behat\Page\Checkout\CheckoutSecurityStep;
 use Sylius\Behat\Page\Checkout\CheckoutShippingStep;
 use Sylius\Behat\Page\Checkout\CheckoutThankYouPage;
+use Sylius\Component\Core\Model\UserInterface;
 use Sylius\Component\Core\Test\Services\SharedStorageInterface;
 
 /**
@@ -212,5 +213,14 @@ final class CheckoutContext implements Context
         $customer = $user->getCustomer();
 
         expect($this->checkoutThankYouPage->hasThankYouMessageFor($customer->getFullName()))->toBe(true);
+    }
+
+    /**
+     * @Then I should be redirected back to the thank you page
+     */
+    public function iShouldBeRedirectedBackToTheThankYouPage()
+    {
+        $this->checkoutThankYouPage->wait();
+        $this->checkoutThankYouPage->verify();
     }
 }
