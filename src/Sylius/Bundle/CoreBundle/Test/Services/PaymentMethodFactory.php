@@ -8,7 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
- 
+
 namespace Sylius\Bundle\CoreBundle\Test\Services;
 
 use Sylius\Component\Resource\Factory\FactoryInterface;
@@ -27,7 +27,13 @@ class PaymentMethodFactory implements PaymentMethodFactoryInterface
     /**
      * @var array
      */
-    private $expectedGateways;
+    private $expectedGateways = [
+        'paypal_express_checkout' => 'paypal express checkout',
+        'be2bill_direct' => 'be2bill direct',
+        'be2bill_offsite' => 'be2bill offsite',
+        'stripe_checkout' => 'stripe checkout',
+        'offline' => 'offline',
+    ];
 
     /**
      * {@inheritdoc}
@@ -35,13 +41,6 @@ class PaymentMethodFactory implements PaymentMethodFactoryInterface
     public function __construct(FactoryInterface $defaultFactory)
     {
         $this->defaultFactory = $defaultFactory;
-        $this->expectedGateways = [
-            'paypal_express_checkout' => 'PayPal Express Checkout',
-            'be2bill_direct' => 'Be2bill Direct',
-            'be2bill_offsite' => 'Be2bill Offsite',
-            'stripe_checkout' => 'Stripe Checkout',
-            'dummy' => 'Offline',
-        ];
     }
 
     /**
@@ -57,7 +56,7 @@ class PaymentMethodFactory implements PaymentMethodFactoryInterface
      */
     public function createFromArray(array $parameters)
     {
-        $this->checkGateway($parameters);
+        $this->setGatewayBasedOnPaymentMethodName($parameters);
         $paymentMethod = $this->defaultFactory->createNew();
 
         $accessor = PropertyAccess::createPropertyAccessor();
@@ -70,13 +69,17 @@ class PaymentMethodFactory implements PaymentMethodFactoryInterface
 
     /**
      * @param array $parameters
-     *
-     * @throws \InvalidArgumentException
      */
-    private function checkGateway(array $parameters)
+    private function setGatewayBasedOnPaymentMethodName(array &$parameters)
     {
+        if (!isset($parameters['name'])) {
+            throw new \InvalidArgumentException(sprintf('Name cannot be empty'));
+        }
+
+        $paymentMethodName = strtolower($parameters['name']);
+
         if (!isset($parameters['gateway'])) {
-            throw new \InvalidArgumentException('Gateway parameter is not set');
+            $parameters['gateway'] = array_search($paymentMethodName, $this->expectedGateways);
         }
 
         if (!array_key_exists($parameters['gateway'], $this->expectedGateways)) {

@@ -17,6 +17,7 @@ use Sylius\Behat\Page\Checkout\CheckoutFinalizeStep;
 use Sylius\Behat\Page\Checkout\CheckoutPaymentStep;
 use Sylius\Behat\Page\Checkout\CheckoutShippingStep;
 use Sylius\Behat\Page\Checkout\CheckoutThankYouPage;
+use Sylius\Behat\Page\External\PaypalPage;
 use Sylius\Component\Core\Model\UserInterface;
 use Sylius\Component\Core\Test\Services\SharedStorageInterface;
 
@@ -56,12 +57,30 @@ final class CheckoutContext implements Context
     private $checkoutThankYouPage;
 
     /**
+     * @var PaypalPage
+     */
+    private $paypalPage;
+
+    /**
+     * @var string
+     */
+    private $paypalAccountName;
+
+    /**
+     * @var string
+     */
+    private $paypalAccountPassword;
+
+    /**
      * @param SharedStorageInterface $sharedStorage
      * @param CheckoutAddressingStep $checkoutAddressingStep
      * @param CheckoutShippingStep $checkoutShippingStep
      * @param CheckoutPaymentStep $checkoutPaymentStep
      * @param CheckoutFinalizeStep $checkoutFinalizeStep
      * @param CheckoutThankYouPage $checkoutThankYouPage
+     * @param PaypalPage $paypalPage
+     * @param string $paypalAccountName
+     * @param string $paypalAccountPassword
      */
     public function __construct(
         SharedStorageInterface $sharedStorage,
@@ -69,7 +88,10 @@ final class CheckoutContext implements Context
         CheckoutShippingStep $checkoutShippingStep,
         CheckoutPaymentStep $checkoutPaymentStep,
         CheckoutFinalizeStep $checkoutFinalizeStep,
-        CheckoutThankYouPage $checkoutThankYouPage
+        CheckoutThankYouPage $checkoutThankYouPage,
+        PaypalPage $paypalPage,
+        $paypalAccountName,
+        $paypalAccountPassword
     ) {
         $this->sharedStorage = $sharedStorage;
         $this->checkoutAddressingStep = $checkoutAddressingStep;
@@ -77,6 +99,9 @@ final class CheckoutContext implements Context
         $this->checkoutPaymentStep = $checkoutPaymentStep;
         $this->checkoutFinalizeStep = $checkoutFinalizeStep;
         $this->checkoutThankYouPage = $checkoutThankYouPage;
+        $this->paypalPage = $paypalPage;
+        $this->paypalAccountName = $paypalAccountName;
+        $this->paypalAccountPassword = $paypalAccountPassword;
     }
 
     /**
@@ -132,6 +157,40 @@ final class CheckoutContext implements Context
         $customer = $user->getCustomer();
 
         expect($this->checkoutThankYouPage->hasThankYouMessageFor($customer->getFullName()))->toBe(true);
+    }
+
+    /**
+     * @Then I should be redirected to PayPal Express Checkout page
+     */
+    public function iShouldBeRedirectedToPaypalExpressCheckoutPage()
+    {
+        $this->paypalPage->verify();
+    }
+
+    /**
+     * @When I sign in to PayPal and pay successfully
+     */
+    public function iSignInToPaypalAndPaySuccessfully()
+    {
+        $this->paypalPage->logIn($this->paypalAccountName, $this->paypalAccountPassword);
+        $this->paypalPage->pay();
+    }
+
+    /**
+     * @Then I should be redirected back to the thank you page
+     */
+    public function iShouldBeRedirectedBackToTheThankYouPage()
+    {
+        $this->checkoutThankYouPage->wait();
+        $this->checkoutThankYouPage->verify();
+    }
+
+    /**
+     * @When I cancel my PayPal payment
+     */
+    public function iCancelMyPaypalPayment()
+    {
+        $this->paypalPage->cancel();
     }
 
     /**

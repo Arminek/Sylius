@@ -38,6 +38,16 @@ class CheckoutThankYouPage extends SymfonyPage
     }
 
     /**
+     * @throws \InvalidArgumentException
+     */
+    public function wait()
+    {
+        $this->getDocument()->waitFor(10, function () {
+            return $this->isOpen();
+        });
+    }
+
+    /**
      * @return string
      */
     protected function getRouteName()

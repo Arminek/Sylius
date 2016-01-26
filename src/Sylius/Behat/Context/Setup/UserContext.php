@@ -130,6 +130,8 @@ final class UserContext implements Context
         $user->setUsername($email);
         $user->setEmail($email);
         $user->setPlainPassword($password);
+        $user->addRole('ROLE_USER');
+        $user->setEnabled(true);
 
         return $user;
     }

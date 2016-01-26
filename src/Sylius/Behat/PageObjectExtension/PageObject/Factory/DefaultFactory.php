@@ -16,8 +16,8 @@ use SensioLabs\Behat\PageObjectExtension\PageObject\Element;
 use SensioLabs\Behat\PageObjectExtension\PageObject\Factory;
 use SensioLabs\Behat\PageObjectExtension\PageObject\Factory\ClassNameResolver;
 use SensioLabs\Behat\PageObjectExtension\PageObject\InlineElement;
-use SensioLabs\Behat\PageObjectExtension\PageObject\Page;
 use SensioLabs\Behat\PageObjectExtension\PageObject\PageObject;
+use Sylius\Behat\PageObjectExtension\PageObject\Page;
 
 final class DefaultFactory implements Factory
 {

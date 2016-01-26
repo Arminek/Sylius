@@ -63,17 +63,17 @@ before_script:
     # Debug informations, PHP version & PHP configuration
     # Its needed to remove the line with secret ariable, as it is listed in _SERVER variables
     - php -v
-    - php -i | grep -v GITHUB_OAUTH_TOKEN
+    - php -i | grep -v 'GITHUB_OAUTH_TOKEN\|SYMFONY__'
 
 script:
     - composer validate
     - if [[ $TRAVIS_PHP_VERSION = 7.* ]]; then etc/travis/check-sylius-cs; fi;
 
-    - bin/phpspec run --no-interaction -f dot
-    - bin/phpunit
+#    - bin/phpspec run --no-interaction -f dot
+#    - bin/phpunit
 
     - etc/travis/prepare-javascript
-    - bin/behat --strict -f progress -p cached || bin/behat --strict -f progress -p cached --rerun
+    - bin/behat --strict -p cached || bin/behat --strict -p cached --rerun
 
 before_cache:
     - yes 'Y' | rm -fr vendor/symfony-cmf/create-bundle/Resources/public/vendor/*

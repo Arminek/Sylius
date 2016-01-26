@@ -40,6 +40,14 @@ abstract class SymfonyPage extends Page
     }
 
     /**
+     * @param array $urlParameters
+     */
+    public function verify(array $urlParameters = [])
+    {
+        $this->verifyUrl($urlParameters);
+    }
+
+    /**
      * {@inheritdoc}
      */
     protected function getUrl(array $urlParameters = [])
@@ -48,7 +56,22 @@ abstract class SymfonyPage extends Page
             throw new \RuntimeException('You need to provide route name, null given');
         }
 
-        return $this->router->generate($this->getRouteName(), $urlParameters, true);
+        $url = $this->router->generate($this->getRouteName(), $urlParameters);
+        $url = $this->makePathAbsoluteWithBehatParameter($url);
+
+        return $url;
+    }
+
+    /**
+     * @param string $path
+     *
+     * @return string
+     */
+    protected function makePathAbsoluteWithBehatParameter($path)
+    {
+        $baseUrl = rtrim($this->getParameter('base_url'), '/').'/';
+
+        return 0 !== strpos($path, 'http') ? $baseUrl.ltrim($path, '/') : $path;
     }
 
     /**
@@ -60,5 +83,8 @@ abstract class SymfonyPage extends Page
     {
     }
 
+    /**
+     * @return string
+     */
     abstract protected function getRouteName();
 }

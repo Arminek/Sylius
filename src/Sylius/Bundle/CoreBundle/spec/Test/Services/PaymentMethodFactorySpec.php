@@ -8,9 +8,9 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
- 
+
 namespace spec\Sylius\Bundle\CoreBundle\Test\Services;
- 
+
 use PhpSpec\ObjectBehavior;
 use Sylius\Component\Payment\Model\PaymentMethodInterface;
 use Sylius\Component\Resource\Factory\FactoryInterface;
@@ -22,31 +22,31 @@ use Symfony\Component\PropertyAccess\PropertyPathInterface;
  */
 class PaymentMethodFactorySpec extends ObjectBehavior
 {
-    function let(FactoryInterface $defaultFactory)
+    public function let(FactoryInterface $defaultFactory)
     {
         $this->beConstructedWith($defaultFactory);
     }
 
-    function it_is_initializable()
+    public function it_is_initializable()
     {
         $this->shouldHaveType('Sylius\Bundle\CoreBundle\Test\Services\PaymentMethodFactory');
     }
 
-    function it_implements_payment_method_factory_interface()
+    public function it_implements_payment_method_factory_interface()
     {
         $this->shouldImplement('Sylius\Bundle\CoreBundle\Test\Services\PaymentMethodFactoryInterface');
     }
 
-    function it_is_factory()
+    public function it_is_factory()
     {
         $this->shouldImplement('Sylius\Component\Resource\Factory\FactoryInterface');
     }
 
-    function it_creates_payment_method_from_array($defaultFactory, PaymentMethodInterface $paymentMethod)
+    public function it_creates_payment_method_from_array($defaultFactory, PaymentMethodInterface $paymentMethod)
     {
-        $parameters  = [
+        $parameters = [
             'code' => 'PM1',
-            'gateway' => 'dummy',
+            'gateway' => 'offline',
             'name' => 'Offline',
             'description' => 'Payment method',
         ];
@@ -54,42 +54,57 @@ class PaymentMethodFactorySpec extends ObjectBehavior
         $defaultFactory->createNew()->willReturn($paymentMethod);
 
         $paymentMethod->setCode('PM1')->shouldBeCalled();
-        $paymentMethod->setGateway('dummy')->shouldBeCalled();
+        $paymentMethod->setGateway('offline')->shouldBeCalled();
         $paymentMethod->setName('Offline')->shouldBeCalled();
         $paymentMethod->setDescription('Payment method')->shouldBeCalled();
 
         $this->createFromArray($parameters)->shouldReturn($paymentMethod);
     }
 
-    function it_prevents_creation_with_bad_gateway()
+    public function it_prevents_creation_with_bad_gateway()
     {
         $parameters = [
+            'name' => 'Offline',
             'gateway' => 'silly',
         ];
 
-        $this->shouldThrow(new \InvalidArgumentException('There is no silly gateway registered, or update this check'))->during('createFromArray', array($parameters));
+        $this->shouldThrow(new \InvalidArgumentException('There is no silly gateway registered, or update this check'))->during('createFromArray', [$parameters]);
     }
 
-    function it_throws_exception_when_can_not_find_proper_setter(PropertyPathInterface $propertyPath)
+    public function it_throws_exception_when_can_not_find_proper_setter(PropertyPathInterface $propertyPath)
     {
         $parameters = [
             'productName' => 'Star wars mug',
-            'gateway' => 'dummy',
+            'name' => 'Offline',
+            'gateway' => 'offline',
         ];
 
         $propertyPath->__toString()->willReturn('productName');
         $propertyPath->getElement(0)->willReturn('productName');
 
-
-        $this->shouldThrow(new UnexpectedTypeException(null, $propertyPath->getWrappedObject(), 0))->during('createFromArray', array($parameters));
+        $this->shouldThrow(new UnexpectedTypeException(null, $propertyPath->getWrappedObject(), 0))->during('createFromArray', [$parameters]);
     }
 
-    function it_throws_exception_when_gatway_is_not_set()
+    public function it_tries_resolve_gateway_name_from_payment_method_name_if_gateway_is_not_set($defaultFactory, PaymentMethodInterface $paymentMethod)
+    {
+        $parameters = [
+            'name' => 'Offline',
+            'code' => 'PM1',
+        ];
+        $defaultFactory->createNew()->willReturn($paymentMethod);
+        $paymentMethod->setGateway('offline')->shouldBeCalled();
+        $paymentMethod->setCode('PM1')->shouldBeCalled();
+        $paymentMethod->setName('Offline')->shouldBeCalled();
+
+        $this->createFromArray($parameters);
+    }
+
+    public function it_throws_exception_if_payment_method_name_is_not_set()
     {
         $parameters = [
             'code' => 'PM1',
         ];
 
-        $this->shouldThrow(new \InvalidArgumentException('Gateway parameter is not set'))->during('createFromArray', array($parameters));
+        $this->shouldThrow(new \InvalidArgumentException(sprintf('Name cannot be empty')))->during('createFromArray', [$parameters]);
     }
 }
