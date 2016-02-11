@@ -71,7 +71,7 @@ class ProductShowPage extends SymfonyPage
 
         $url = $this->router->generate($urlParameters['product'], []);
         $url = $this->makePathAbsoluteWithBehatParameter($url);
-        
+
         return $url;
     }
 }

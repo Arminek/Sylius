@@ -12,6 +12,7 @@
 namespace Sylius\Behat\Context\Setup;
 
 use Behat\Behat\Context\Context;
+use Sylius\Bundle\CoreBundle\Test\Services\PaymentMethodNameToGatewayConverterInterface;
 use Sylius\Component\Core\Test\Services\SharedStorageInterface;
 use Sylius\Component\Resource\Factory\FactoryInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
@@ -37,29 +38,38 @@ final class PaymentContext implements Context
     private $paymentMethodFactory;
 
     /**
+     * @var PaymentMethodNameToGatewayConverterInterface
+     */
+    private $paymentMethodNameToGatewayConverter;
+
+    /**
      * @param RepositoryInterface $paymentMethodRepository
      * @param SharedStorageInterface $sharedStorage
      * @param FactoryInterface $paymentMethodFactory
+     * @param PaymentMethodNameToGatewayConverterInterface $paymentMethodNameToGatewayConverter
      */
-    public function __construct(RepositoryInterface $paymentMethodRepository, SharedStorageInterface $sharedStorage, FactoryInterface $paymentMethodFactory)
-    {
+    public function __construct(
+        RepositoryInterface $paymentMethodRepository,
+        SharedStorageInterface $sharedStorage,
+        FactoryInterface $paymentMethodFactory,
+        PaymentMethodNameToGatewayConverterInterface $paymentMethodNameToGatewayConverter
+    ) {
         $this->paymentMethodRepository = $paymentMethodRepository;
         $this->sharedStorage = $sharedStorage;
         $this->paymentMethodFactory = $paymentMethodFactory;
+        $this->paymentMethodNameToGatewayConverter = $paymentMethodNameToGatewayConverter;
     }
 
     /**
-     * @Given store allows paying :paymentMethodName
+     * @Given the store allows paying :paymentMethodName
      */
     public function storeAllowsPaying($paymentMethodName)
     {
-        $properties = [
-            'code' => 'PM'.$paymentMethodName,
-            'name' => $paymentMethodName,
-            'description' => 'Payment method',
-        ];
-
-        $paymentMethod = $this->paymentMethodFactory->createFromArray($properties);
+        $paymentMethod = $this->paymentMethodFactory->createNew();
+        $paymentMethod->setCode('PM_'.$paymentMethodName);
+        $paymentMethod->setName(ucfirst($paymentMethodName));
+        $paymentMethod->setGateway($this->paymentMethodNameToGatewayConverter->convert($paymentMethodName));
+        $paymentMethod->setDescription('Payment method');
 
         $channel = $this->sharedStorage->getCurrentResource('channel');
         $channel->addPaymentMethod($paymentMethod);

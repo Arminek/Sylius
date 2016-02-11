@@ -67,7 +67,7 @@ before_script:
 
 script:
     - composer validate
-    
+
     - if [[ $TRAVIS_PHP_VERSION = 7.* ]]; then bin/kawaii gherkin:check --align=left features/; fi;
 
     - bin/phpspec run --no-interaction -f dot
@@ -75,7 +75,7 @@ script:
 
     - etc/travis/prepare-javascript
     - bin/behat --strict -f progress -p cached || if [[ $? -eq 1 ]]; then bin/behat --strict -f progress -p cached --rerun; fi # Do not rerun on fatal error (255) or passed tests (0)
-
+    - if [[ $TRAVIS_PULL_REQUEST = false && ! -z "$SYMFONY__PAYPAL__EXPRESS_CHECKOUT__USERNAME" ]]; then bin/behat --strict -f progress -p cached --tags=paypal; fi;
 before_cache:
     - yes 'Y' | rm -fr vendor/symfony-cmf/create-bundle/Resources/public/vendor/*
 

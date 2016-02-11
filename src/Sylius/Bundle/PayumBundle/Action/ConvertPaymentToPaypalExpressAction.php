@@ -14,10 +14,10 @@ namespace Sylius\Bundle\PayumBundle\Action;
 use Payum\Core\Action\ActionInterface;
 use Payum\Core\Exception\RequestNotSupportedException;
 use Payum\Core\Request\Convert;
-use Sylius\Bundle\CoreBundle\Checkout\InvoiceNumberGeneratorInterface;
 use Sylius\Component\Core\Model\AdjustmentInterface;
 use Sylius\Component\Core\Model\OrderInterface;
 use Sylius\Component\Core\Model\PaymentInterface;
+use Sylius\Component\Core\Payment\InvoiceNumberGeneratorInterface;
 
 class ConvertPaymentToPaypalExpressAction implements ActionInterface
 {

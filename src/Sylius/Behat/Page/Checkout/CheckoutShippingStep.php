@@ -11,6 +11,7 @@
 
 namespace Sylius\Behat\Page\Checkout;
 
+use SensioLabs\Behat\PageObjectExtension\PageObject\Exception\ElementNotFoundException;
 use Sylius\Behat\Page\SymfonyPage;
 
 /**
@@ -26,7 +27,7 @@ class CheckoutShippingStep extends SymfonyPage
         $radio = $this->getDocument()->findField($shippingMethod);
 
         if (null === $radio) {
-            throw new \RuntimeException('Shipping method not found or it is not visible');
+            throw new ElementNotFoundException('Shipping method not found or it is not visible');
         }
 
         $this->getDocument()->fillField($radio->getAttribute('name'), $radio->getAttribute('value'));

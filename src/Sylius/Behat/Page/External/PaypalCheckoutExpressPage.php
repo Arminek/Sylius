@@ -18,7 +18,7 @@ use Sylius\Behat\PageObjectExtension\PageObject\Page;
 /**
  * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
  */
-class PaypalPage extends Page
+class PaypalCheckoutExpressPage extends Page
 {
     /**
      * @param string $email

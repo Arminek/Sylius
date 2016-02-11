@@ -9,28 +9,29 @@
  * file that was distributed with this source code.
  */
 
-namespace spec\Sylius\Bundle\CoreBundle\Checkout;
+namespace spec\Sylius\Component\Core\Payment;
 
 use PhpSpec\ObjectBehavior;
+use Sylius\Component\Core\Payment\InvoiceNumberGeneratorInterface;
 use Sylius\Component\Order\Model\OrderInterface;
 use Sylius\Component\Payment\Model\PaymentInterface;
 
 /**
  * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
  */
-class InvoiceNumberGeneratorBasedOnIdsSpec extends ObjectBehavior
+class IdBasedInvoiceNumberGeneratorSpec extends ObjectBehavior
 {
     public function it_is_initializable()
     {
-        $this->shouldHaveType('Sylius\Bundle\CoreBundle\Checkout\InvoiceNumberGeneratorBasedOnIds');
+        $this->shouldHaveType('Sylius\Component\Core\Payment\IdBasedInvoiceNumberGenerator');
     }
 
     public function it_is_invoice_number_generator()
     {
-        $this->shouldImplement('Sylius\Bundle\CoreBundle\Checkout\InvoiceNumberGeneratorInterface');
+        $this->shouldImplement(InvoiceNumberGeneratorInterface::class);
     }
 
-    public function it_generate_random_invoice_number(OrderInterface $order, PaymentInterface $payment)
+    public function it_generates_invoice_number_based_on(OrderInterface $order, PaymentInterface $payment)
     {
         $order->getId()->willReturn('001');
         $payment->getId()->willReturn('1');

@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Sylius\Bundle\CoreBundle\Checkout;
+namespace Sylius\Component\Core\Payment;
 
 use Sylius\Component\Order\Model\OrderInterface;
 use Sylius\Component\Payment\Model\PaymentInterface;
@@ -17,7 +17,7 @@ use Sylius\Component\Payment\Model\PaymentInterface;
 /**
  * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
  */
-class InvoiceNumberGeneratorBasedOnIds implements InvoiceNumberGeneratorInterface
+class IdBasedInvoiceNumberGenerator implements InvoiceNumberGeneratorInterface
 {
     /**
      * {@inheritdoc}

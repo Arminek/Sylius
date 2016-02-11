@@ -11,6 +11,7 @@
 
 namespace Sylius\Behat\Page\Checkout;
 
+use SensioLabs\Behat\PageObjectExtension\PageObject\Exception\ElementNotFoundException;
 use Sylius\Behat\Page\SymfonyPage;
 
 /**
@@ -20,13 +21,15 @@ class CheckoutPaymentStep extends SymfonyPage
 {
     /**
      * @param string $paymentMethod
+     *
+     * @throws ElementNotFoundException
      */
     public function selectPaymentMethod($paymentMethod)
     {
         $radio = $this->getDocument()->findField($paymentMethod);
 
         if (null === $radio) {
-            throw new \RuntimeException('Payment method not found or it is not visible');
+            throw new ElementNotFoundException('Payment method not found or it is not visible');
         }
 
         $this->getDocument()->fillField($radio->getAttribute('name'), $radio->getAttribute('value'));

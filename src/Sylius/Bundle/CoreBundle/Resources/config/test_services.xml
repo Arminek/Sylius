@@ -18,10 +18,10 @@
     <parameters>
         <parameter key="sylius.behat.shared_storage.class">Sylius\Component\Core\Test\Services\SharedStorage</parameter>
         <parameter key="sylius.behat.security.class">Sylius\Bundle\CoreBundle\Test\Services\SecurityService</parameter>
-        <parameter key="sylius.behat.factory.payment_method.class">Sylius\Bundle\CoreBundle\Test\Services\PaymentMethodFactory</parameter>
+        <parameter key="sylius.payment_method_name_to_gateway_converter.class">Sylius\Bundle\CoreBundle\Test\Services\PaymentMethodNameToGatewayConverter</parameter>
 
         <parameter key="sylius.behat.default_france_channel_factory.class">Sylius\Component\Core\Test\Services\DefaultFranceChannelFactory</parameter>
-        <parameter key="sylius.behat.invoice__number_generator.class">Sylius\Bundle\CoreBundle\Test\Services\RandomInvoiceNumberGenerator</parameter>
+        <parameter key="sylius.random_invoice_number_generator.class">Sylius\Component\Core\Test\Services\RandomInvoiceNumberGenerator</parameter>
     </parameters>
 
     <services>
@@ -30,12 +30,12 @@
             <argument type="service" id="sylius.repository.user" />
             <argument type="service" id="session" />
         </service>
-        <service id="sylius.behat.factory.payment_method" class="%sylius.behat.factory.payment_method.class%">
-            <argument type="service" id="sylius.factory.payment_method" />
-        </service>
 
         <!--Paypal-->
-        <service id="sylius.checkout.invoice_number_generator" class="%sylius.behat.invoice__number_generator.class%" />
+        <service id="sylius.invoice_number_generator" class="%sylius.random_invoice_number_generator.class%" />
+        <service id="sylius.payment_method_name_to_gateway_converter" class="%sylius.payment_method_name_to_gateway_converter.class%">
+            <argument type="service" id="payum" />
+        </service>
 
         <!--Default Store Data-->
         <service id="sylius.behat.default_france_channel_factory" class="%sylius.behat.default_france_channel_factory.class%">

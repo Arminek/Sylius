@@ -11,18 +11,15 @@
 
 namespace Sylius\Bundle\CoreBundle\Test\Services;
 
-use Sylius\Component\Payment\Model\PaymentMethodInterface;
-use Sylius\Component\Resource\Factory\FactoryInterface;
-
 /**
  * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
  */
-interface PaymentMethodFactoryInterface extends FactoryInterface
+interface PaymentMethodNameToGatewayConverterInterface
 {
     /**
-     * @param array $parameters
+     * @param string $name
      *
-     * @return PaymentMethodInterface
+     * @return string
      */
-    public function createFromArray(array $parameters);
+    public function convert($name);
 }

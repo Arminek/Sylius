@@ -220,7 +220,7 @@ final class CheckoutContext implements Context
      */
     public function iShouldBeRedirectedBackToTheThankYouPage()
     {
-        $this->checkoutThankYouPage->wait();
+        $this->checkoutThankYouPage->waitForResponse(10);
         $this->checkoutThankYouPage->verify();
     }
 }
