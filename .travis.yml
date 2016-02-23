@@ -74,6 +74,8 @@ script:
     - composer validate
     - etc/bin/validate-packages
 
+    - yes 'Y' | app/console sylius:install:sample-data
+
     - if [[ $TRAVIS_PHP_VERSION = 7.* ]]; then bin/kawaii gherkin:check --align=left features/; fi;
 
     - bin/phpspec run --no-interaction -f dot
