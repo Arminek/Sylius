@@ -12,3 +12,6 @@ sylius:
                 marketing:
                     header: Marketing
                     promotions: Promotions
+                assortment:
+                    header: Assortment
+                    taxon: Categorization

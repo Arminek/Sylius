@@ -42,6 +42,7 @@ final class MainMenuBuilder extends AbstractAdminMenuBuilder
     {
         $this->configureConfigurationSubMenu($menu);
         $this->configureMarketingSubMenu($menu);
+        $this->configureAssortmentSubMenu($menu);
     }
 
     /**
@@ -99,6 +100,23 @@ final class MainMenuBuilder extends AbstractAdminMenuBuilder
             ->addChild('promotions', ['route' => 'sylius_admin_promotion_index'])
             ->setLabel('sylius.menu.admin.main.marketing.promotions')
             ->setLabelAttribute('icon', 'in cart')
+        ;
+    }
+
+    /**
+     * @param ItemInterface $menu
+     */
+    private function configureAssortmentSubMenu(ItemInterface $menu)
+    {
+        $assortmentSubMenu = $menu
+            ->addChild('assortment')
+            ->setLabel('sylius.menu.admin.main.assortment.header')
+        ;
+
+        $assortmentSubMenu
+            ->addChild('taxon', ['route' => 'sylius_admin_taxon_index'])
+            ->setLabel('sylius.menu.admin.main.assortment.taxon')
+            ->setLabelAttribute('icon', 'folder')
         ;
     }
 }

@@ -1,0 +1,22 @@
+sylius_grid:
+    grids:
+        sylius_admin_taxon:
+            driver:
+                name: doctrine/orm
+                options:
+                    class: "%sylius.model.taxon.class%"
+            sorting:
+                code: asc
+            fields:
+                code:
+                    type: string
+                    label: sylius.ui.code
+            actions:
+                main:
+                    create:
+                        type: create
+                item:
+                    update:
+                        type: update
+                    delete:
+                        type: delete
