@@ -50,28 +50,14 @@
             </tr>
             </tbody>
         </table>
-        <div class="ui two column stackable grid">
+        <div class="ui two column stackable grid" id="addresses">
             <div class="column">
-                <h4 class="ui dividing header">Shipping address</h4>
-                <address>
-                    <strong>John Doe</strong><br>
-                    +48 213 432 123<br/>
-                    Dubois 114/116<br/>
-                    London<br/>
-                    <i class="pl flag"></i>
-                    Poland 94-254
-                </address>
+                <h4 class="ui dividing header">{{ 'sylius.ui.shipping_address'|trans }}</h4>
+                {% include '@SyliusShop/Checkout/_address.html.twig' with {'address': order.shippingAddress} %}
             </div>
             <div class="column">
-                <h4 class="ui dividing header">Billing address</h4>
-                <address>
-                    <strong>John Doe</strong><br/>
-                    +48 213 432 123<br/>
-                    Dubois 114/116<br/>
-                    London<br/>
-                    <i class="pl flag"></i>
-                    Poland 94-254
-                </address>
+                <h4 class="ui dividing header">{{ 'sylius.ui.billing_address'|trans }}</h4>
+                {% include '@SyliusShop/Checkout/_address.html.twig' with {'address': order.billingAddress} %}
             </div>
         </div>
         <h4 class="ui dividing header">Shipping and payment methods</h4>
