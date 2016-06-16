@@ -530,4 +530,29 @@ final class CheckoutContext implements Context
 
         return $lastOrder;
     }
+
+    /**
+     * @Given I am at the checkout payment step
+     */
+    public function iAmAtTheCheckoutPaymentStep()
+    {
+        $this->paymentPage->open();
+
+    }
+
+    /**
+     * @When I complete the payment step
+     */
+    public function iCompleteThePaymentStep()
+    {
+        $this->paymentPage->nextStep();
+    }
+
+    /**
+     * @When I select :paymentMethod payment method
+     */
+    public function iSelectPaymentMethod($paymentMethod)
+    {
+        $this->paymentPage->selectPaymentMethod($paymentMethod);
+    }
 }
