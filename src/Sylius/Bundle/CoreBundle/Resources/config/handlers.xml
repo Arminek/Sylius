@@ -5,6 +5,11 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
+        <service id="sylius.handler.cart_locale_change" class="Sylius\Bundle\CoreBundle\Handler\CartLocaleChangeHandler">
+            <argument type="service" id="sylius.context.cart" />
+            <argument type="service" id="event_dispatcher" />
+        </service>
+
         <service id="sylius.handler.locale_change" class="Sylius\Bundle\CoreBundle\Handler\LocaleChangeHandler">
             <argument type="service" id="sylius.storage.locale" />
             <argument type="service" id="sylius.context.channel.composite" />
