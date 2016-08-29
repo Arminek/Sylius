@@ -230,6 +230,10 @@
         </service>
 
         <!-- listeners -->
+        <service id="sylius.listener.cart_update" class="Sylius\Bundle\CoreBundle\EventListener\CartUpdateListener">
+            <argument type="service" id="sylius.manager.cart" />
+            <tag name="kernel.event_listener" event="sylius.cart_change" method="updateCart" priority="-1" />
+        </service>
         <service id="sylius.listener.cart_locale_change" class="Sylius\Bundle\CoreBundle\EventListener\CartLocaleChangeListener">
             <argument type="service" id="sylius.handler.cart_locale_change" />
             <tag name="kernel.event_listener" event="sylius.locale.code_changed" method="changeCartLocale" />
