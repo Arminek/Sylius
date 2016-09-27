@@ -18,5 +18,14 @@
                 <argument type="service" id="service_container" />
             </call>
         </service>
+
+        <service id="sylius.controller.payum" class="Sylius\Bundle\CoreBundle\Controller\PayumController">
+            <argument type="service" id="payum" />
+            <argument type="service" id="sylius.repository.payment" />
+            <argument type="service" id="sylius.manager.payment" />
+            <argument type="expression" >service('sylius.resource_registry').get('sylius.payment')</argument>
+            <argument type="service" id="sylius.resource_controller.request_configuration_factory" />
+            <argument type="service" id="sylius.resource_controller.redirect_handler" />
+        </service>
     </services>
 </container>
