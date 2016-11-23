@@ -13,7 +13,10 @@
         {% endif %}
     {% endif %}
     {{ form_row(form.cartItem.quantity) }}
-    <button type="submit" class="ui huge primary icon labeled button"><i class="cart icon"></i> {{ 'sylius.ui.add_to_cart'|trans }}</button>
+
+    <button type="submit" class="ui huge primary icon labeled button" data-url="{{ path('sylius_shop_ajax_cart_item_add', {'productId': product.id}) }}"><i class="cart icon"></i> {{ 'sylius.ui.add_to_cart'|trans }}</button>
+    <div class="ui red top left pointing label sylius-validation-error" id="sylius-api-validation-error">
+    </div>
     {{ form_row(form._token) }}
     {{ form_end(form, {'render_rest': false}) }}
 </div>

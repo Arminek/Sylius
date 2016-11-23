@@ -12,40 +12,30 @@
 
     $.fn.extend({
         addToCart: function () {
-            $(this).on('submit', function(event) {
-                refresh(this, event);
+            var form = $(this);
+            var submitButton = $(this).find('button[type="submit"]');
+            var validationElement = $(this).find('.sylius-validation-error');
+            var redirectUrl = $(this).data('redirect');
+
+            validationElement.hide();
+
+            submitButton.api({
+                method: 'POST',
+                beforeSend: function (settings) {
+                    settings.data = form.serialize();
+
+                    return settings;
+                },
+                onSuccess: function (response) {
+                    console.log(response);
+                    location.replace(redirectUrl);
+                },
+                onFailure: function (response) {
+                    validationElement.show();
+                    console.log(response);
+                    validationElement.html('elo z responsa z messagem od walidacji hop hop');
+                }
             });
         }
     });
-
-    function refresh(element, event) {
-        event.preventDefault();
-
-        var data = $(element).serialize();
-        var href = $(element).attr('action');
-        var redirectUrl = $(element).data('redirect');
-
-        $.ajax({
-            type: "POST",
-            url: href,
-            data: data,
-            cache: false,
-            success: function (data) {
-                if ($(data).find(".sylius-validation-error").length) {
-                    $(document).find('#sylius-product-selecting-variant').html($(data).find('#sylius-product-adding-to-cart'));
-
-                    $(document).find('#sylius-product-adding-to-cart > button').on('click', function() {
-                        return $(this).closest('form').addClass('loading');
-                    });
-
-                    $('#sylius-product-adding-to-cart').on('submit', function(event) {
-                        refresh(this, event);
-                    });
-                } else {
-                    window.location.replace(redirectUrl);
-                }
-            }
-        })
-    }
-
 })( jQuery );
