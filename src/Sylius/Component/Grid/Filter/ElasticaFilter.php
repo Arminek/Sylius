@@ -58,10 +58,10 @@ class ElasticaFilter implements FilterInterface
 
             return;
         }
-
-        foreach ($fields as $field) {
-            $dataSource->restrict($this->getExpression($expressionBuilder, $type, $field, $value), DataSourceInterface::CONDITION_OR);
-        }
+//
+//        foreach ($fields as $field) {
+//            $dataSource->restrict($this->getExpression($expressionBuilder, $type, $field, $value), DataSourceInterface::CONDITION_OR);
+//        }
     }
 
     /**

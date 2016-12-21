@@ -11,8 +11,7 @@
 
 namespace Sylius\Bundle\GridBundle\Elastica;
 
-use Elastica\Search;
-use Elastica\Index;
+use FOS\ElasticaBundle\Manager\RepositoryManagerInterface;
 use Sylius\Component\Grid\Data\DriverInterface;
 use Sylius\Component\Grid\Parameters;
 
@@ -24,16 +23,16 @@ final class Driver implements DriverInterface
     const NAME = 'elastica';
 
     /**
-     * @var Index
+     * @var RepositoryManagerInterface
      */
-    private $index;
+    private $repositoryManager;
 
     /**
-     * @param Index $index
+     * @param RepositoryManagerInterface $repositoryManager
      */
-    public function __construct(Index $index)
+    public function __construct(RepositoryManagerInterface $repositoryManager)
     {
-        $this->index = $index;
+        $this->repositoryManager = $repositoryManager;
     }
 
     /**
@@ -41,12 +40,22 @@ final class Driver implements DriverInterface
      */
     public function getDataSource(array $configuration, Parameters $parameters)
     {
-        if (!array_key_exists('type', $configuration)) {
-            throw new \InvalidArgumentException('"type" must be configured.');
+        if (!array_key_exists('class', $configuration)) {
+            throw new \InvalidArgumentException('"class" must be configured.');
         }
 
-        $query = (array_key_exists('query', $configuration)) ?  $configuration['query'] : [];
+        /** @var RepositoryInterface $repository */
+        $repository = $this->repositoryManager->getRepository($configuration['class']);
 
-        return new DataSource($this->index->getType($configuration['type']), $query);
+        if (isset($configuration['repository']['method'])) {
+            $method = $configuration['repository']['method'];
+            $arguments = isset($configuration['repository']['arguments']) ? array_values($configuration['repository']['arguments']) : [];
+
+            $query = $repository->$method(...$arguments);
+        } else {
+            $query = $repository->createQuery();
+        }
+
+        return new DataSource($query, $repository, $repository->createQueryBuilder());
     }
 }

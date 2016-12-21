@@ -7,39 +7,18 @@ sylius_grid:
             driver:
                 name: elastica
                 options:
-                    type: product
-                    query:
-                        and:
-                            - term:
-                                enabled: true
-                            - nested:
-                                path: variants
-                                query:
-                                    bool:
-                                        minimum_number_should_match: 1
-                                        should:
-                                            range:
-                                                variants.onHand: { gt: 0 }
-                                        must:
-                                            filtered:
-                                                filter:
-                                                    or:
-                                                        - missing: { field: variants.availableOn }
-                                                        - range: { variants.availableOn: { lte: now } }
-                                                    or:
-                                                        - missing: { field: variants.availableUntil }
-                                                        - range: { variants.availableUntil: { gte: now } }
-                            - nested:
-                                path: channels
-                                filter:
-                                    bool:
-                                        must:
-                                            term: { 'channels.code': "expr:service('sylius.context.channel').getChannel().getCode()" }
+                    class: "%sylius.model.product.class%"
+                    repository:
+                        method: createQueryWithTaxon
+                        arguments: ["expr:service('sylius.repository.taxon').find($taxonId)"]
             filters:
-                _all:
-                    type: elastica
-                taxons.code:
-                    type: elastica
+                code:
+                    type: nested
+                    path:
+                        option:
+                            type: nested
+                name:
+                    type: string
             sorting:
                 position: asc
             fields:
@@ -50,8 +29,8 @@ sylius_grid:
                     options:
                         format: m/d/Y
                 position: 
-                    type: string  #not use but expected
-                    sortable: productTaxon.position
+                    type: string 
+                    sortable: productTaxons.position
             filters:
                 search:
                     type: string

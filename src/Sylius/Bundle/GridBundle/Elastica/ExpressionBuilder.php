@@ -11,7 +11,8 @@
 
 namespace Sylius\Bundle\GridBundle\Elastica;
 
-use Sylius\Component\Grid\Data\DataSourceInterface;
+use Elastica\Query;
+use Elastica\QueryBuilder;
 use Sylius\Component\Grid\Data\ExpressionBuilderInterface;
 
 /**
@@ -20,31 +21,19 @@ use Sylius\Component\Grid\Data\ExpressionBuilderInterface;
 class ExpressionBuilder implements ExpressionBuilderInterface
 {
     /**
-     * @var array
+     * @var Query
      */
     private $query;
 
     /**
-     * @var array
+     * @var QueryBuilder
      */
-    private $sort = [];
+    private $queryBuilder;
 
-    /**
-     * @var boolean
-     */
-    private $filtered = false;
-
-    /**
-     * {@inheritdoc}
-     */
-    public function __construct($query)
+    public function __construct(Query $query, QueryBuilder $queryBuilder)
     {
-        if (empty($query)) {
-            $this->query = ['match_all' => []];
-        } else {
-            $this->initQueryForFilters();
-            $this->query['filtered']['filter'] = $query;
-        }
+        $this->query = $query;
+        $this->queryBuilder = $queryBuilder;
     }
 
     /**
@@ -52,7 +41,15 @@ class ExpressionBuilder implements ExpressionBuilderInterface
      */
     public function andX(...$expressions)
     {
-        throw new \BadMethodCallException('Not supported yet.');
+        $boolQuery = $this->queryBuilder->query()->bool();
+        /** @var Query $expression */
+        foreach ($expressions as $expression) {
+            $boolQuery->addMust($expression->getQuery());
+        }
+
+        $this->query->setQuery($boolQuery);
+
+        return $this;
     }
 
     /**
@@ -60,7 +57,15 @@ class ExpressionBuilder implements ExpressionBuilderInterface
      */
     public function orX(...$expressions)
     {
-        throw new \BadMethodCallException('Not supported yet.');
+        $boolQuery = $this->queryBuilder->query()->bool();
+        /** @var Query $expression */
+        foreach ($expressions as $expression) {
+            $boolQuery->addShould($expression->getQuery());
+        }
+
+        $this->query->setQuery($boolQuery);
+
+        return $this;
     }
 
     /**
@@ -76,7 +81,13 @@ class ExpressionBuilder implements ExpressionBuilderInterface
      */
     public function equals($field, $value)
     {
-        return $this->computeExpression($field, ['regexp' => [$field => $value]]);
+        $match = $this->queryBuilder->query()->match($field, $value);
+
+        $this->query->setQuery(
+            $match
+        );
+
+        return $this;
     }
 
     /**
@@ -84,7 +95,13 @@ class ExpressionBuilder implements ExpressionBuilderInterface
      */
     public function notEquals($field, $value)
     {
-        return $this->computeExpression($field, ['not' => $this->equals($field, $value)]);
+        $this->query->setQuery(
+            $this->queryBuilder->query()->bool()->addMustNot(
+                $this->queryBuilder->query()->match($field, $value)
+            )
+        );
+
+        return $this;
     }
 
     /**
@@ -124,7 +141,16 @@ class ExpressionBuilder implements ExpressionBuilderInterface
      */
     public function in($field, array $values)
     {
-        return $this->computeExpression($field, ['terms' => [$field => $values]]);
+        $boolQuery = $this->queryBuilder->query()->bool();
+        foreach ($values as $value) {
+            $boolQuery->addMust(
+                $this->queryBuilder->query()->match($field, $value)
+            );
+        }
+
+        $this->query->setQuery($boolQuery);
+
+        return $this;
     }
 
     /**
@@ -132,7 +158,16 @@ class ExpressionBuilder implements ExpressionBuilderInterface
      */
     public function notIn($field, array $values)
     {
-        return $this->computeExpression($field, ['not' => $this->in($field, $values)]);
+        $boolQuery = $this->queryBuilder->query()->bool();
+        foreach ($values as $value) {
+            $boolQuery->addMustNot(
+                $this->queryBuilder->query()->match($field, $value)
+            );
+        }
+
+        $this->query->setQuery($boolQuery);
+
+        return $this;
     }
 
     /**
@@ -140,7 +175,16 @@ class ExpressionBuilder implements ExpressionBuilderInterface
      */
     public function isNull($field)
     {
-        return $this->computeExpression($field, ['missing' => ['field' => $field]]);
+        $this->query->setQuery(
+            $this->queryBuilder->query()->filtered(
+                $this->query,
+                $this->queryBuilder->filter()->bool_not(
+                    $this->queryBuilder->filter()->exists($field)
+                )
+            )
+        );
+
+        return $this;
     }
 
     /**
@@ -148,7 +192,14 @@ class ExpressionBuilder implements ExpressionBuilderInterface
      */
     public function isNotNull($field)
     {
-        return $this->computeExpression($field, ['not' => $this->isNull($field)]);
+        $this->query->setQuery(
+            $this->queryBuilder->query()->filtered(
+                $this->query,
+                $this->queryBuilder->filter()->exists($field)
+            )
+        );
+
+        return $this;
     }
 
     /**
@@ -156,7 +207,12 @@ class ExpressionBuilder implements ExpressionBuilderInterface
      */
     public function like($field, $pattern)
     {
-        return $this->computeExpression($field, ['regexp' => [ $field => $pattern ]]);
+        $pattern = str_replace('%', '*', $pattern);
+        $this->query->setQuery(
+            $this->queryBuilder->query()->regexp($field, $pattern)
+        );
+
+        return $this;
     }
 
     /**
@@ -164,7 +220,14 @@ class ExpressionBuilder implements ExpressionBuilderInterface
      */
     public function notLike($field, $pattern)
     {
-        return $this->computeExpression($field, ['not' => $this->like($field, $pattern)]);
+        $pattern = str_replace('%', '*', $pattern);
+        $this->query->setQuery(
+            $this->queryBuilder->query()->bool()->addMustNot(
+                $this->queryBuilder->query()->regexp($field, $pattern)
+            )
+        );
+
+        return $this;
     }
 
     /**
@@ -172,7 +235,9 @@ class ExpressionBuilder implements ExpressionBuilderInterface
      */
     public function orderBy($field, $direction)
     {
-        return [$field => ['order' => $direction ]];
+        $this->addOrderBy($field, $direction);
+
+        return $this;
     }
 
     /**
@@ -180,124 +245,16 @@ class ExpressionBuilder implements ExpressionBuilderInterface
      */
     public function addOrderBy($field, $direction)
     {
-        $this->sort[] = $this->orderBy($field, $direction);
+        $this->query->addSort([$field => ['order' => $direction]]);
+
+        return $this;
     }
 
     /**
-     * @param array $expression
-     * @param string $condition
-     */
-    public function addFilter($expression, $condition)
-    {
-        if (isset($expression['nested'])) {
-            $this->addNestedFilter($expression['nested'], $expression['expression'], $condition);
-        } else {
-            if (empty($this->query['filtered']['filter'])) {
-                $this->query['filtered']['filter'] = $expression;
-            } else {
-                if (!isset($this->query['filtered']['filter'][$condition])) {
-                    $this->query['filtered']['filter'] = [$condition => [
-                        $this->query['filtered']['filter'],
-                        $expression,
-                    ]];
-                } else {
-                    $this->query['filtered']['filter'][$condition][] = $expression;
-                }
-            }
-        }
-    }
-
-    /**
-     * @param string $path
-     * @param array $expression
-     * @param string $condition
-     */
-    public function addNestedFilter($path, $expression, $condition)
-    {
-        if (empty($this->query['filtered']['filter'])) {
-            $this->query['filtered']['filter']['nested'] = [
-                'path' => $path,
-                'filter' => [
-                    'bool' => [
-                        'must' => $expression
-                    ]
-                ],
-            ];
-        } else {
-            if (!isset($this->query['filtered']['filter'][$condition])) {
-                $this->query['filtered']['filter'] = [$condition => [
-                    $this->query['filtered']['filter'],
-                    ['nested' => [
-                        'path' => $path,
-                        'filter' => [
-                            'bool' => [
-                                'must' => $expression
-                            ]
-                        ]
-                    ]],
-                ]];
-            } else {
-                $this->query['filtered']['filter'][$condition][] = ['nested' => [
-                    'path' => $path,
-                    'filter' => [
-                        'bool' => [
-                            'must' => $expression
-                        ]
-                    ]
-                ]];
-            }
-        }
-    }
-
-    /**
-     * @return array Array that represent elastica raw query
+     * @return Query
      */
     public function getQuery()
     {
         return $this->query;
-    }
-
-    /**
-     * @return array Array that represent elastica sort
-     */
-    public function getSort()
-    {
-        return $this->sort;
-    }
-
-    public function initQueryForFilters()
-    {
-        if (!$this->filtered) {
-            $this->query = ['filtered' => ['filter' => []]];
-            $this->filtered = true;
-        }
-    }
-
-    /**
-     * @param string $field
-     * @return boolean
-     */
-    private function isNested($field)
-    {
-        return preg_match('/\./', $field);
-    }
-
-    /**
-     * Compute expression to be elastic compliant
-     *
-     * @param string $field      [description]
-     * @param array $expression [description]
-     *
-     * @return array
-     */
-    private function computeExpression($field, $expression)
-    {
-        if ($this->isNested($field)) {
-            $properties = explode('.', $field);
-
-            return ['nested' =>  $properties[0], 'expression' =>  $expression];
-        }
-
-        return $expression;
     }
 }

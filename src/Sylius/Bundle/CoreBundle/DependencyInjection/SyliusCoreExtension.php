@@ -93,8 +93,6 @@ final class SyliusCoreExtension extends AbstractResourceExtension implements Pre
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $this->prependHwiOauth($container, $loader);
-
-        $this->prependElasticaProductListener($container);
     }
 
     /**
@@ -120,29 +118,5 @@ final class SyliusCoreExtension extends AbstractResourceExtension implements Pre
         }
 
         $loader->load('services/integrations/hwi_oauth.xml');
-    }
-
-    /**
-     * @param ContainerBuilder $container
-     */
-    private function prependElasticaProductListener(ContainerBuilder $container)
-    {
-        if (!$container->hasExtension('fos_elastica') || !$container->hasExtension('sylius_grid')) {
-            return;
-        }
-
-        $configuration = new FosElasticaConfiguration(false);
-        $processor = new Processor();
-        $elasticaConfig = $processor->processConfiguration($configuration, $container->getExtensionConfig('fos_elastica'));
-
-        foreach ($elasticaConfig['indexes'] as $index => $config) {
-            if (array_key_exists('product', $config['types'])) {
-                $elasticaProductListenerDefinition = new Definition(ElasticaProductListener::class);
-                $elasticaProductListenerDefinition->addArgument(new Reference('fos_elastica.object_persister.' . $index . '.product'));
-                $elasticaProductListenerDefinition->addTag('doctrine.event_subscriber');
-
-                $container->setDefinition('sylius_product.listener.index_' . $index . '.product_update', $elasticaProductListenerDefinition);
-            }
-        }
     }
 }

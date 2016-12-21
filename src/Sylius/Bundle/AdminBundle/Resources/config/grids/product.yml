@@ -2,9 +2,9 @@ sylius_grid:
     grids:
         sylius_admin_product:
             driver:
-                name: elastica
+                name: doctrine/orm
                 options:
-                    type: product
+                    class: "%sylius.model.product.class%"
             sorting:
                 code: asc
             fields:
@@ -47,3 +47,20 @@ sylius_grid:
                         type: update
                     delete:
                         type: delete
+
+lakion_sylius_elastic_search:
+    filter_sets:
+        tshirts:
+            filters:
+                tshirt_color:
+                    type: option
+                    options:
+                        code: tshirt_color
+                tshirt_size:
+                    ty
+        books:
+            filters:
+                book_type:
+                    type: taxon
+                    options:
+                        root: book_type

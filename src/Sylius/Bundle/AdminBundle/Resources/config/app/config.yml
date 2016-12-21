@@ -52,7 +52,7 @@ sylius_grid:
         filter:
             string: "@SyliusAdmin/Grid/Filter/string.html.twig"
             boolean: "@SyliusAdmin/Grid/Filter/boolean.html.twig"
-            elastica: "@SyliusAdmin/Grid/Filter:elastica.html.twig"
+            elastica: "@SyliusAdmin/Grid/Filter/elastica.html.twig"
 
 liip_imagine:
     filter_sets:

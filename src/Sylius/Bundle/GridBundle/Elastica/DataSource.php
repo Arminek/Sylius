@@ -11,13 +11,12 @@
 namespace Sylius\Bundle\GridBundle\Elastica;
 
 use Elastica\Query;
-use Elastica\Query\Simple;
-use Elastica\SearchableInterface;
-use Elastica\Type;
-use Pagerfanta\Adapter\ElasticaAdapter;
+use Elastica\Query\AbstractQuery;
+use Elastica\QueryBuilder;
+use FOS\ElasticaBundle\Paginator\FantaPaginatorAdapter;
+use FOS\ElasticaBundle\Repository;
 use Pagerfanta\Pagerfanta;
 use Sylius\Component\Grid\Data\DataSourceInterface;
-use Sylius\Component\Grid\Data\ExpressionBuilderInterface;
 use Sylius\Component\Grid\Parameters;
 
 /**
@@ -26,22 +25,36 @@ use Sylius\Component\Grid\Parameters;
 final class DataSource implements DataSourceInterface
 {
     /**
-     * @var Type
-     */
-    private $type;
-
-    /**
-     * @var ExpressionBuilderInterface
+     * @var ExpressionBuilder
      */
     private $expressionBuilder;
 
     /**
-     * @param SearchableInterface $type
+     * @var QueryBuilder
      */
-    function __construct(SearchableInterface $type, array $query = [])
+    private $queryBuilder;
+
+    /**
+     * @var Repository
+     */
+    private $repository;
+
+    /**
+     * @var AbstractQuery
+     */
+    private $query;
+
+    /**
+     * @param Query $query
+     * @param Repository $repository
+     * @param QueryBuilder $queryBuilder
+     */
+    public function __construct(Query $query, Repository $repository, QueryBuilder $queryBuilder)
     {
-        $this->type = $type;
-        $this->expressionBuilder = new ExpressionBuilder($query);
+        $this->query = Query::create($query);
+        $this->expressionBuilder = new ExpressionBuilder($this->query, $queryBuilder);
+        $this->queryBuilder = $queryBuilder;
+        $this->repository = $repository;
     }
 
     /**
@@ -49,9 +62,15 @@ final class DataSource implements DataSourceInterface
      */
     public function restrict($expression, $condition = DataSourceInterface::CONDITION_AND)
     {
-        $this->expressionBuilder->initQueryForFilters();
-
-        $this->expressionBuilder->addFilter($expression, $condition);
+        /** @var ExpressionBuilder $expression */
+        switch ($condition) {
+            case DataSourceInterface::CONDITION_AND:
+                $expression->andX($this->query);
+                break;
+            case DataSourceInterface::CONDITION_OR:
+                $expression->orX($this->query);
+                break;
+        }
     }
 
     /**
@@ -67,13 +86,17 @@ final class DataSource implements DataSourceInterface
      */
     public function getData(Parameters $parameters)
     {
-        $query = new Query(new Simple($this->expressionBuilder->getQuery()));
-        if (!empty($this->expressionBuilder->getSort())) {
-            $query->setSort($this->expressionBuilder->getSort());
-        }
-        $paginator = new Pagerfanta(new ElasticaAdapter($this->type, $query));
+        $query = Query::create($this->query);
+
+        $paginator = new Pagerfanta(
+            new FantaPaginatorAdapter(
+                $this->repository->createPaginatorAdapter($query)
+            )
+        );
+
         $paginator->setNormalizeOutOfRangePages(true);
         $paginator->setCurrentPage($parameters->get('page', 1));
+        $paginator->getCurrentPageResults();
 
         return $paginator;
     }
