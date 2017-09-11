@@ -17,6 +17,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use PhpSpec\ObjectBehavior;
 use Sylius\Component\Core\Model\AddressInterface;
 use Sylius\Component\Core\Model\CustomerInterface;
+use Sylius\Component\Core\Model\ShopUserInterface;
 
 /**
  * @author Alexandre Bacco <alexandre.bacco@gmail.com>
@@ -66,5 +67,15 @@ final class CustomerSpec extends ObjectBehavior
     {
         $this->setDefaultAddress($address);
         $this->hasAddress($address)->shouldReturn(true);
+    }
+
+    function it_sets_a_username_on_a_user_after_setting_an_email(ShopUserInterface $user): void
+    {
+        $this->setUser($user);
+
+        $user->setUsername('customer@example.com')->shouldBeCalled();
+
+        $this->setEmail('customer@example.com');
+        $this->getEmail()->shouldReturn('customer@example.com');
     }
 }

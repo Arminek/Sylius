@@ -54,6 +54,18 @@ class Customer extends BaseCustomer implements CustomerInterface
     /**
      * {@inheritdoc}
      */
+    public function setEmail(?string $email): void
+    {
+        parent::setEmail($email);
+
+        if ($this->hasUser()) {
+            $this->getUser()->setUsername($email);
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getOrders(): Collection
     {
         return $this->orders;
