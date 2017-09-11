@@ -58,7 +58,7 @@ class Customer extends BaseCustomer implements CustomerInterface
     {
         parent::setEmail($email);
 
-        if ($this->hasUser()) {
+        if ($this->hasUser() && null != $email) {
             $this->getUser()->setUsername($email);
         }
     }
