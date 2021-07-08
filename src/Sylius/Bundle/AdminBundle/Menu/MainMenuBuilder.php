@@ -43,6 +43,7 @@ final class MainMenuBuilder
         $this->addCustomersSubMenu($menu);
         $this->addMarketingSubMenu($menu);
         $this->addConfigurationSubMenu($menu);
+        $this->addBatchProcessingSubMenu($menu);
 
         $this->eventDispatcher->dispatch(new MenuBuilderEvent($this->factory, $menu), self::EVENT_NAME);
 
@@ -236,6 +237,20 @@ final class MainMenuBuilder
             ->addChild('admin_users', ['route' => 'sylius_admin_admin_user_index'])
             ->setLabel('sylius.menu.admin.main.configuration.admin_users')
             ->setLabelAttribute('icon', 'lock')
+        ;
+    }
+
+    private function addBatchProcessingSubMenu(ItemInterface $menu): void
+    {
+        $sales = $menu
+            ->addChild('batch_processing')
+            ->setLabel('sylius.menu.admin.main.batch_processing.header')
+        ;
+
+        $sales
+            ->addChild('processes', ['route' => 'sylius_admin_batch_processing_index'])
+            ->setLabel('sylius.menu.admin.main.batch_processing.processes')
+            ->setLabelAttribute('icon', 'cart')
         ;
     }
 }

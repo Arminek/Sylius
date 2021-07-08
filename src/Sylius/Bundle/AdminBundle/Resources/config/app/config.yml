@@ -32,6 +32,7 @@ imports:
     - { resource: "@SyliusAdminBundle/Resources/config/grids/tax_rate.yml" }
     - { resource: "@SyliusAdminBundle/Resources/config/grids/taxon.yml" }
     - { resource: "@SyliusAdminBundle/Resources/config/grids/zone.yml" }
+    - { resource: "@SyliusAdminBundle/Resources/config/grids/batch_processing.yml" }
 
 parameters:
     env(SYLIUS_ADMIN_ROUTING_PATH_NAME): admin
@@ -47,6 +48,7 @@ sylius_grid:
             ship_with_tracking_code: "@SyliusAdmin/Shipment/Grid/Action/shipWithTrackingCode.html.twig"
             update_product_positions: "@SyliusAdmin/Product/Grid/Action/updatePositions.html.twig"
             update_product_variant_positions: "@SyliusAdmin/ProductVariant/Grid/Action/updatePositions.html.twig"
+            start_process: "@SyliusAdmin/BatchProcessing/Grid/Action/start.html.twig"
         filter:
             entities: '@SyliusUi/Grid/Filter/entities.html.twig'
 

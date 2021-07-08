@@ -15,6 +15,10 @@
     <services>
         <defaults public="true" />
 
+        <service id="Sylius\Bundle\CoreBundle\Command\RegisterJobsCommand">
+            <tag name="console.command" />
+        </service>
+
         <service id="Sylius\Bundle\CoreBundle\Command\CancelUnpaidOrdersCommand">
             <tag name="console.command" />
         </service>

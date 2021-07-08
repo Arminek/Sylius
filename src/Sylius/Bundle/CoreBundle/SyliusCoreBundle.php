@@ -26,6 +26,7 @@ use Sylius\Bundle\CoreBundle\DependencyInjection\Compiler\CircularDependencyBrea
 use Sylius\Bundle\CoreBundle\DependencyInjection\Compiler\IgnoreAnnotationsPass;
 use Sylius\Bundle\CoreBundle\DependencyInjection\Compiler\LazyCacheWarmupPass;
 use Sylius\Bundle\CoreBundle\DependencyInjection\Compiler\LiipImageFiltersPass;
+use Sylius\Bundle\CoreBundle\DependencyInjection\Compiler\RegisterBatchProcessingJobs;
 use Sylius\Bundle\CoreBundle\DependencyInjection\Compiler\RegisterTaxCalculationStrategiesPass;
 use Sylius\Bundle\CoreBundle\DependencyInjection\Compiler\RegisterUriBasedSectionResolverPass;
 use Sylius\Bundle\CoreBundle\DependencyInjection\Compiler\TranslatableEntityLocalePass;
@@ -71,6 +72,7 @@ final class SyliusCoreBundle extends AbstractResourceBundle
         $container->addCompilerPass(new ResolveShopUserTargetEntityPass());
         $container->addCompilerPass(new RegisterUriBasedSectionResolverPass());
         $container->addCompilerPass(new LiipImageFiltersPass());
+        $container->addCompilerPass(new RegisterBatchProcessingJobs());
     }
 
     /**

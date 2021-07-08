@@ -131,3 +131,21 @@ sonata_block:
                 resources: ~
                 statistics: ~
                 taxon: ~
+
+maker:
+    root_namespace: 'Sylius\Bundle\CoreBundle'
+
+sylius_resource:
+    resources:
+        sylius.batch_processing:
+            driver: doctrine/orm # You can use also different driver here
+            classes:
+                model: Sylius\Bundle\CoreBundle\Entity\Process
+                repository: Sylius\Bundle\CoreBundle\Repository\ProcessRepository
+                form: Sylius\Bundle\CoreBundle\Form\Type\BatchProcessing\ProcessType
+
+        sylius.batch_processing_job:
+            driver: doctrine/orm # You can use also different driver here
+            classes:
+                model: Sylius\Bundle\CoreBundle\Entity\Job
+                repository: Sylius\Bundle\CoreBundle\Repository\JobRepository

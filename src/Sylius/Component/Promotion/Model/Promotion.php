@@ -298,4 +298,21 @@ class Promotion implements PromotionInterface
         $action->setPromotion(null);
         $this->actions->removeElement($action);
     }
+
+    public function isActive(): bool
+    {
+        $now = new \DateTime();
+
+        $startsAt = $this->getStartsAt();
+        if (null !== $startsAt && $now < $startsAt) {
+            return false;
+        }
+
+        $endsAt = $this->getEndsAt();
+        if (null !== $endsAt && $now > $endsAt) {
+            return false;
+        }
+
+        return true;
+    }
 }

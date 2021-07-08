@@ -1,0 +1,7 @@
+<form action="{{ path(options.route, options.parameters) }}" data-csrf-token="{{ csrf_token(data.id) }}" method="post">
+    <input type="hidden" name="_method" value="patch" />
+    <button class="ui labeled loadable icon button sylius-save-position" type="submit">
+        <i class="icon checkmark"></i>
+        {{ action.label|trans }}
+    </button>
+</form>

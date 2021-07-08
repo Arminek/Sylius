@@ -42,6 +42,34 @@
     <services>
         <defaults public="true" />
 
+        <service id="sylius.form.type.batch_processing_type" class="Sylius\Bundle\CoreBundle\Form\Type\BatchProcessing\ProcessType">
+            <argument>%sylius.model.batch_processing.class%</argument>
+            <argument type="collection">
+                <argument>sylius</argument>
+            </argument>
+            <argument type="service" id="sylius.batch_processing.manager.registry" />
+            <tag name="form.type" />
+        </service>
+
+        <service id="sylius.controller.batch_processing.start" class="Sylius\Bundle\CoreBundle\BatchProcessing\Controller\StartAction">
+            <argument type="service" id="sylius.repository.batch_processing" />
+            <argument type="service" id="sylius.batch_processing.manager.registry" />
+            <argument type="service" id="router" />
+        </service>
+
+        <service id="sylius.batch_processing.manager.catalog_promotion" class="Sylius\Bundle\PromotionBundle\BatchProcessing\CatalogPromotionManager">
+            <argument type="service" id="sylius.repository.batch_processing" />
+            <argument type="service" id="sylius.event_bus" />
+            <argument type="service" id="sylius.repository.promotion" />
+            <argument type="service" id="sylius.repository.product" />
+            <argument type="service" id="sylius.repository.taxon" />
+            <argument type="service" id="sylius.repository.batch_processing_job" />
+            <tag name="sylius.batch_processing.manager" />
+            <tag name="messenger.message_handler" bus="sylius.event_bus"/>
+        </service>
+
+        <service id="sylius.batch_processing.manager.registry" class="Sylius\Bundle\CoreBundle\DependencyInjection\ProcessManagerRegistry" />
+
         <service id="sylius.provider.channel_based_default_zone_provider" class="Sylius\Bundle\CoreBundle\Provider\ChannelBasedDefaultTaxZoneProvider" />
 
         <service id="sylius.integer_distributor" class="Sylius\Component\Core\Distributor\IntegerDistributor" />

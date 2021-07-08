@@ -104,4 +104,6 @@ interface PromotionInterface extends CodeAwareInterface, TimestampableInterface,
     public function addAction(PromotionActionInterface $action): void;
 
     public function removeAction(PromotionActionInterface $action): void;
+
+    public function isActive(): bool;
 }

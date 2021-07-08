@@ -9,6 +9,9 @@ sylius:
     menu:
         admin:
             main:
+                batch_processing:
+                    header: Batch processing
+                    processes: Processes
                 catalog:
                     association_types: Association types
                     attributes: Attributes
@@ -43,6 +46,8 @@ sylius:
                     header: Sales
                     orders: Orders
     ui:
+        batch_processings: Batch Processing
+        batch_processing: Batch Processing
         product:
             product_not_active_in_channel: The product is not yet activated in this channel.
         gateway:

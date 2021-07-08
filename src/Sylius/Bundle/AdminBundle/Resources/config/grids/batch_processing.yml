@@ -1,0 +1,42 @@
+sylius_grid:
+    grids:
+        sylius_admin_batch_processing:
+            driver:
+                name: doctrine/orm
+                options:
+                    class: "%sylius.model.batch_processing.class%"
+            fields:
+                name:
+                    type: string
+                    label: sylius.ui.name
+                code:
+                    type: string
+                    label: sylius.ui.code
+                status:
+                    type: string
+                    label: sylius.ui.status
+                progress:
+                    type: string
+                    label: sylius.ui.progress 
+                processManagerId:
+                    type: string
+                    label: sylius.ui.manager_id
+            actions:
+                main:
+                    create:
+                        type: create
+                item:
+                    start:
+                        type: start_process
+                        label: sylius.ui.start
+                        options:
+                            route: sylius_admin_batch_processing_start
+                            parameters:
+                                id: resource.id
+                    update:
+                        type: update
+                    delete:
+                        type: delete
+                bulk:
+                    delete:
+                        type: delete
