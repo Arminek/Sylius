@@ -36,7 +36,7 @@ use Symfony\Component\Messenger\Stamp\DelayStamp;
 
 final class CatalogPromotionManager implements ProcessManager
 {
-    private const LIMIT = 1;
+    private const LIMIT = 100;
 
     private ProcessRepository $repository;
     private MessageBusInterface $bus;
@@ -108,8 +108,19 @@ final class CatalogPromotionManager implements ProcessManager
 
         /** @var TaxonInterface $taxon */
         foreach ($taxons as $taxon) {
-            $productsFromTaxon = $this->productRepository->createListQueryBuilder('en_US', $taxon->getId())->addOrderBy('o.id', 'DESC')->getQuery()->getResult();
-            $productAmount = count($productsFromTaxon);
+            $productAmount = (int) $this->productRepository
+                ->createQueryBuilder('product')
+                ->select('COUNT(product)')
+                ->innerJoin('product.productTaxons', 'productTaxon')
+                ->andWhere('productTaxon.taxon = :taxonId')
+                ->setParameter('taxonId', $taxon->getId())
+                ->getQuery()
+                ->getSingleScalarResult();
+//                ->innerJoin('o.productTaxons', 'productTaxon')
+//                ->andWhere('productTaxon.taxon = :taxonId')
+//                ->setParameter('taxonId', $taxon->getId());
+            dump($productAmount);
+
             $jobAmount = (int)ceil($productAmount / self::LIMIT );
             for ($i = 0; $i < $jobAmount; $i++) {
                 $currentPage = $i+1;
@@ -134,7 +145,7 @@ final class CatalogPromotionManager implements ProcessManager
 
         foreach ($process->getJobs() as $job) {
             $this->bus->dispatch(
-                new Envelope(new JobStarted($process->getId(), $job->getId()), [new DelayStamp(random_int(15000, 70000))])
+                new Envelope(new JobStarted($process->getId(), $job->getId()))
             );
         }
     }
